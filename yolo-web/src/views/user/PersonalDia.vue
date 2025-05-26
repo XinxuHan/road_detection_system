@@ -1,11 +1,11 @@
 <template>
-  <el-dialog :model-value="dialogVisible" title="修改个人信息" width="50%" @close="handleClose">
+  <el-dialog :model-value="dialogVisible" title="Modify personal information" width="50%" @close="handleClose">
     <el-form  :model="form" label-width="150px">
 
       <div class="updateinfo">
 
         <div class="left">
-          <el-form-item label="头像" prop="avatar">
+          <el-form-item label="avatar" prop="avatar">
             <el-upload
                 class="avatar-uploader"
                 name="avatar"
@@ -17,20 +17,20 @@
             </el-upload>
             <!--            <img style="width:150px;height:110px" :src="userInfo.avatarUrl" />-->
           </el-form-item>
-          <el-form-item label="昵称" prop="nick_name">
+          <el-form-item label="Nick name" prop="nick_name">
 
             <el-input v-model="form.nick_name" />
           </el-form-item>
-          <el-form-item label="年龄" prop="age">
+          <el-form-item label="age" prop="age">
             <el-input v-model="form.age" :min="0" :max="120"></el-input>
           </el-form-item>
-          <el-form-item label="性别" prop="gender">
+          <el-form-item label="gender" prop="gender">
             <el-switch
                 v-model="form.gender"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="男"
-                inactive-text="女"
+                active-text="Male"
+                inactive-text="Female"
                 :active-value= "'1'"
                 :inactive-value= "'0'"
             >
@@ -41,13 +41,13 @@
         </div>
 
         <div class="right">
-          <el-form-item label="账号" prop="account">
+          <el-form-item label="account" prop="account">
             <el-input v-model="form.account" disabled></el-input>
           </el-form-item>
-          <el-form-item label="邮箱" prop="email">
+          <el-form-item label="Email" prop="email">
             <el-input v-model="form.email"></el-input>
           </el-form-item>
-          <el-form-item label="手机号码" prop="phone">
+          <el-form-item label="phone number" prop="phone">
             <el-input v-model="form.phone"></el-input>
           </el-form-item>
         </div>
@@ -61,8 +61,8 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose">取消</el-button>
-        <el-button type="primary"  @click="handleSubmit">提交</el-button>
+        <el-button @click="handleClose">Cancel</el-button>
+        <el-button type="primary"  @click="handleSubmit">submit</el-button>
       </div>
     </template>
   </el-dialog>
@@ -76,12 +76,12 @@ import {updateUser} from "@/api/login/user";
 import {ElMessage, ElNotification ,ElForm} from "element-plus";
 import type { UploadProps } from 'element-plus'
 import myApi from "@/utils/request";
-// 通过 emits 发送 dialogVisible 的变化
+// Send dialogVisible changes via emits
 const emits = defineEmits(["update:modelValue"]);
 const dialogVisible = ref<boolean>(false);
 
 
-// 表单数据
+// Form Data
 const form = reactive({
   account:"",
   avatar: "",
@@ -101,7 +101,7 @@ const user = loginUserStore.loginUser;
 const avatarUrl =ref("")
 
 
-// 加载用户信息
+// Loading user information
 onMounted(() => {
   if (user) {
     form.nick_name = user.nick_name;
@@ -118,16 +118,16 @@ onMounted(() => {
 });
 
 
-// 头像上传
+// Upload avatar
 const handleAvatarSuccess = (res: any) => {
   console.log(res);
   avatarUrl.value = `${myApi.defaults.baseURL}/user/media/avatar/${res.avatarUrl}`;
-  form.avatar = res.avatarUrl;  // 将文件名保存到form.avatar，提交时一起提交
+  form.avatar = res.avatarUrl;  // Save the file name to form.avatar and submit it together when submitting
 }
 
 
 
-// 更新数据后同步 UI
+// Synchronize UI after updating data
 const handleSubmit = async () => {
   try {
     const formData = new FormData();
@@ -136,27 +136,27 @@ const handleSubmit = async () => {
     formData.append('phone', form.phone);
     formData.append('age', String(form.age));
     formData.append('gender', form.gender);
-    if (form.avatar) formData.append('avatar', form.avatar);  // 如果用户有上传头像，则添加到 FormData
+    if (form.avatar) formData.append('avatar', form.avatar);  // If the user has uploaded an avatar, add it to FormData
 
-    await updateUser(formData);  // 调用后端更新用户信息 API
+    await updateUser(formData);  // Call the backend API to update user information
 
-    // 更新 Pinia store 中的用户数据
+    // Update user data in Pinia store
     loginUserStore.setLoginUser({
       ...loginUserStore.loginUser,
       ...form,
     });
 
-    emits('update:modelValue', false);  // 关闭对话框
+    emits('update:modelValue', false);  // Close dialog box
 
     ElMessage({
-      message: '用户信息更新成功',
+      message: 'User information updated successfully',
       type: 'success',
     })
 
   } catch (error) {
     ElNotification({
       title: 'Warning',
-      message: '服务器匆忙，请稍后再试',
+      message: 'The server is busy, please try again later',
       type: 'warning',
     })
   }
@@ -164,7 +164,7 @@ const handleSubmit = async () => {
 
 
 const handleClose = () => {
-  //点击取消恢复表单数据为最新的用户数据
+  //Click Cancel to restore the form data to the latest user data
   form.nick_name = loginUserStore.loginUser.nick_name;
   form.account = loginUserStore.loginUser.account;
   form.email = loginUserStore.loginUser.email;
@@ -196,7 +196,7 @@ const handleClose = () => {
   overflow: hidden;
 }
 
-/* 使用 :deep() 来覆盖 el-input 的边框 */
+/* Use :deep() to cover the border of el-input */
 :deep(.el-input__wrapper) {
   padding: 0 !important;
 }
