@@ -4,6 +4,7 @@ import Login from "@/views/user/Login.vue";
 import Register from "@/views/user/Register.vue";
 import UserCenter from "@/views/user/UserCenter.vue";
 import HelloWorld from "@/components/HelloWorld.vue";
+import About from "@/views/About.vue";
 import {useLoginUserStore} from "@/store/useLoginUserStore";
 
 const routes = [
@@ -56,7 +57,11 @@ const routes = [
         ]
     },
 
-    
+    {
+        path: '/about',
+        name: 'about',
+        component: About // 实际的组件
+    },
 
 ];
 

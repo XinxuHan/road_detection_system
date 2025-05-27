@@ -1,218 +1,167 @@
 <template>
-  <div id="mr-mainbody" class="container mr-mainbody">
-    <div class="row">
-      <div id="mr-content" class="mr-content col-xs-12">
-        <div class="login-wrap"
-             style="margin-bottom: 60px; margin-top: 50px">
-          <div style="max-width: 540px; margin: 0 auto;">
-            <a href="index.html" title="点击返回首页">
-            </a>
-          </div>
-          <div class="login">
-            <div class="page-header">
-              <h1 class="login_h1">用户注册</h1>
-            </div>
+  <div class="register-page">
+    <div class="register-container">
+      <h1 class="register-title">用户注册</h1>
+      <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
+      <form @submit.prevent="handleSubmit" class="form">
+        <el-form-item label="账号" required>
+          <el-input v-model="form.account" placeholder="请输入账号" clearable />
+          <div v-if="errors.account" class="field-error">{{ errors.account }}</div>
+        </el-form-item>
 
-            <div v-if="errorMessage" style="color:red;text-align:center;font-size:16px">
-              {{ errorMessage }}
-            </div>
+        <el-form-item label="密码" required>
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password clearable />
+          <div v-if="errors.password" class="field-error">{{ errors.password }}</div>
+        </el-form-item>
 
-            <!-- 注册表单 -->
-            <form  @submit.prevent="handleSubmit"  class="form-horizontal">
+        <el-form-item label="确认密码" required>
+          <el-input v-model="form.checkPassword" type="password" placeholder="请确认密码" show-password clearable />
+          <div v-if="errors.checkPassword" class="field-error">{{ errors.checkPassword }}</div>
+        </el-form-item>
 
-              <fieldset>
-                <div class="form-group">
-                  <div class="col-sm-4 control-label">
-                    <label for="account" class="required">账号：</label>
+        <el-form-item label="手机号" required>
+          <el-input v-model="form.phone" placeholder="请输入手机号" clearable />
+          <div v-if="errors.phone" class="field-error">{{ errors.phone }}</div>
+        </el-form-item>
 
-                  </div>
-                  <div class="col-sm-8">
-                    <!-- 账号文本框 -->
-                    <input v-model="form.account" id="account" type="text" class="form-control" placeholder="请输入账号" required />
-                    <span v-if="errors.account" class="error">{{ errors.account }}</span>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-sm-4 control-label">
-                    <label for="password" class="required">密码：</label>
+        <el-form-item label="邮箱" required>
+          <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
+          <div v-if="errors.email" class="field-error">{{ errors.email }}</div>
+        </el-form-item>
 
-                  </div>
-                  <div class="col-sm-8">
-                    <!-- 密码文本框 -->
-                    <input v-model="form.password" id="password" type="password" class="form-control" placeholder="请输入密码" required />
-                    <span v-if="errors.password" class="error">{{ errors.password }}</span>
+        <el-button type="primary" class="register-btn" :loading="loading" native-type="submit">注册</el-button>
 
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <div class="col-sm-4 control-label">
-                    <label for="password" class="required">确认密码：</label>
-
-                  </div>
-                  <div class="col-sm-8">
-                    <!-- 确认密码文本框 -->
-                    <input v-model="form.checkPassword" id="password" type="password" class="form-control" placeholder="请确认密码" required />
-                    <span v-if="errors.checkPassword" class="error">{{ errors.checkPassword }}</span>
-
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-sm-4 control-label">
-                    <label for="password" class="required">手机号：</label>
-
-                  </div>
-                  <div class="col-sm-8" style="clear: none;">
-                    <!-- 输入联系电话的文本框 -->
-                    <input v-model="form.phone" id="checkPassword" type="text" class="form-control" placeholder="请输入手机号" required />
-                    <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
-
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="col-sm-4 control-label">
-                    <label for="password" class="required">邮箱：</label>
-
-                  </div>
-                  <div class="col-sm-8" style="clear: none;">
-                    <!-- 输入邮箱的文本框 -->
-                    <input v-model="form.email" id="password" type="text" class="form-control" placeholder="请输入邮箱" required />
-                    <span v-if="errors.email" class="error">{{ errors.email }}</span>
-
-
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <div class="col-sm-offset-4 col-sm-8">
-                    <button type="submit" class="btn btn-primary login">注册</button>
-                  </div>
-                </div>
-                <div class="form-group" style="border-top: 1px solid #D9D9D9; margin: 20px;">
-                  <label style="float: right; color: #858585; margin-right: 80px; margin-top: 10px; font-size: 14px;">
-                    已有账号！<router-link to="/login">立即登录</router-link></label>
-                </div>
-              </fieldset>
-            </form>
-          </div>
+        <div class="login-link">
+          已有账号？<router-link to="/login">立即登录</router-link>
         </div>
-      </div>
+      </form>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { register } from '@/api/login/user'
 
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { register } from "@/api/login/user";
-const errorMessage = ref('');
-
+const errorMessage = ref('')
 const form = ref({
-  account:'',
-  // nick_name: '',
+  account: '',
   password: '',
   checkPassword: '',
-  phone:'',
-  email:'',
+  phone: '',
+  email: ''
+})
+const errors = ref<any>({})
+const loading = ref(false)
+const router = useRouter()
+const accountRegExp = /^[a-zA-Z0-9_]+$/
 
-});
-
-const errors = ref<any>({}); // 用于存储表单验证错误
-const loading = ref(false);
-const router = useRouter();
-
-// 正则表达式：账号只能包含字母、数字和下划线，且不允许有中文字符
-const accountRegExp = /^[a-zA-Z0-9_]+$/;
-
-// 表单提交处理
 const handleSubmit = async () => {
-  // 清除之前的错误信息
-  errors.value = {};
-
-  // 验证账号格式
+  errors.value = {}
   if (!accountRegExp.test(form.value.account)) {
-    errors.value.account = '账号只能包含字母、数字和下划线，且不能包含中文字符';
-    return;
+    errors.value.account = '账号只能包含字母、数字和下划线'
+    return
   }
-  // 验证密码和确认密码是否一致
   if (form.value.password !== form.value.checkPassword) {
-    errors.value.checkPassword = '密码和确认密码不一致';
-    return;
+    errors.value.checkPassword = '密码和确认密码不一致'
+    return
   }
-
-  loading.value = true;
-  errorMessage.value = '';
-
+  loading.value = true
+  errorMessage.value = ''
   try {
-    const response = await register(form.value);
-
+    const response = await register(form.value)
     if (response.data.success) {
-      router.push('/login');
+      router.push('/login')
     } else {
-      errors.value = response.data.errors || {}; // 获取后端返回的错误
+      errors.value = response.data.errors || {}
     }
-  } catch (error) {
-    console.error('Register failed:', error);
-    errorMessage.value = '注册失败，请稍后再试';
+  } catch (e) {
+    errorMessage.value = '注册失败，请稍后再试'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
-
-
+}
 </script>
 
-
 <style scoped>
-/* 样式设置 */
-.login-wrap {
-  max-width: 540px;
-  margin: 0 auto;
+.register-page {
+  min-height: calc(100vh - 64px);
+  background: url('@/assets/home-bg.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  background: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.page-header {
+.register-container {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(220, 220, 220, 0.5);
+}
+
+.register-title {
   text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  color: #4687f5;
+  margin-bottom: 24px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
-.login_h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.form-group {
-  margin-bottom: 20px;
+.field-error {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
-.form-control {
-  width: 80%;
-  padding: 10px;
+.register-btn {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(70, 135, 245, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(70, 135, 245, 0.3);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 16px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  color: #888;
 }
-
-
-.error {
-  color: red;
-  font-size: 12px;
-}
-
-.btn-primary:disabled {
-  background-color: #e0e0e0;
-}
-
-a {
-  color: #007bff;
+.login-link a {
+  color: #4687f5;
+  font-weight: 500;
+  margin-left: 4px;
   text-decoration: none;
 }
-
-a:hover {
+.login-link a:hover {
   text-decoration: underline;
+}
+
+.error-msg {
+  color: #e74c3c;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 500;
 }
 </style>

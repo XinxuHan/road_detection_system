@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@Auth ：挂科边缘
-@File ：urls.py
-@IDE ：PyCharm
-@Motto :学习新思想，争做新青年
-"""
 from django.urls import path,re_path
 from django.views.static import serve
 

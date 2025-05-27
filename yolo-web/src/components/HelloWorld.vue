@@ -3,7 +3,7 @@
     <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Recognition System</h1>
-        <p  class="hero-subtitle">Suitable for object detection, segmentation and key point detection models, etc.</p>
+        <p  class="hero-subtitle">Deep Learning Based Recognition System for Unstructured Road-Drivable Areas</p>
         <el-button
             type="primary"
             size="large"
@@ -11,7 +11,7 @@
             class="cta-button"
             @click="handleExplore"
         >
-          get started
+          Start
         </el-button>
       </div>
     </div>
@@ -24,60 +24,66 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const handleExplore = () => {
-
   router.push('/detect')
-
-
 }
 </script>
 
 <style scoped>
 .home-container {
-  height: 80vh;
+  height: calc(100vh - 64px); /* Assuming header is 64px */
   overflow: hidden;
-}
-
-.hero-section {
-  position: relative;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-image: url('@/assets/home-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.hero-section {
+  text-align: center;
   animation: fadeIn 1.5s ease-in;
+  z-index: 1;
 }
 
 .hero-content {
-  text-align: center;
-  color: #3a710e;
   max-width: 700px;
   padding: 0 20px;
+  color: #fff;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   margin-bottom: 1.5rem;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
-  line-height: 1.2;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 2.5rem;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  font-size: 1.4rem;
+  color: #e0e0e0;
+  margin-bottom: 2rem;
 }
 
 .cta-button {
   padding: 1rem 2.5rem;
   font-size: 1.2rem;
-  letter-spacing: 1px;
-  transition: transform 0.3s ease;
+  background-color: #4687f5;
+  border: none;
+  box-shadow: 0 4px 12px rgba(70, 135, 245, 0.3);
+  font-weight: 500;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .cta-button:hover {
+  background-color: #3c75e1;
   transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(70, 135, 245, 0.4);
 }
 
-/* 淡入动画 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -89,16 +95,13 @@ const handleExplore = () => {
   }
 }
 
-/* 移动端适配 */
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2.5rem;
   }
-
   .hero-subtitle {
-    color: #67C23A;
+    font-size: 1.2rem;
   }
-
   .cta-button {
     padding: 0.8rem 1.8rem;
     font-size: 1rem;
@@ -109,7 +112,6 @@ const handleExplore = () => {
   .hero-title {
     font-size: 2rem;
   }
-
   .hero-subtitle {
     font-size: 1rem;
   }

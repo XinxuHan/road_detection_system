@@ -232,6 +232,10 @@ const options = [
     value: 'yolo11n-pose.pt',
     label: 'yolo11n-pose.pt',
   },
+  {
+    value: 'yolo11n-seg.pt',
+    label: 'yolo11n-seg.pt',
+  },
 ]
 
 const handleModelChange = async () => {
