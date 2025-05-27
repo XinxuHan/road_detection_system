@@ -24,7 +24,7 @@
                 size="medium"
                 plain
                 @click="openEditDialog"
-            >edit</el-button>
+            >编辑</el-button>
 
           </div>
         </div>
@@ -50,7 +50,7 @@
                 index="info"
                 :route="{ name: 'info', params: { id: loginUserStore.loginUser?.id } }">
               <i class="el-icon-user"></i>
-              <span slot="title">Personal Profile</span>
+              <span slot="title">个人简介</span>
             </el-menu-item>
 
             <el-menu-item
@@ -58,7 +58,7 @@
                 :route="{ name: 'ChangePassword', params: { id: loginUserStore.loginUser?.id } }">
 
               <i class="el-icon-edit-outline"></i>
-              <span slot="title">Change Password</span>
+              <span slot="title">修改密码</span>
             </el-menu-item>
 
 
@@ -73,7 +73,7 @@
         <router-view></router-view>
       </div>
     </div>
-    <!-- Importing the PersonalDia component -->
+    <!-- 引入 PersonalDia 组件 -->
     <PersonalDia  v-model="dialogVisible" />
 
 
@@ -99,15 +99,15 @@ import {ref, reactive, computed, watchEffect} from "vue";
 import PersonalDia from "@/views/user/PersonalDia.vue";
 import myApi from "@/utils/request";
 
-// Get user data through computed and update UI
+// 通过 computed 获取用户数据并更新 UI
 computed(() => loginUserStore.loginUser);
 
-// Control the display and hiding of dialog boxes
+// 控制对话框的显示与隐藏
 const dialogVisible = ref(false);
 
 
 const openEditDialog = () => {
-  dialogVisible.value = true;  // Set dialog box to be visible
+  dialogVisible.value = true;  // 设置对话框可见
 };
 
 

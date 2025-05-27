@@ -42,7 +42,7 @@
           {{ user.age || 'Not set' }}
         </el-descriptions-item>
 
-        <!-- gender -->
+        <!-- 性别 -->
         <el-descriptions-item>
           <template #label>
             <el-icon>
@@ -50,7 +50,7 @@
               <Male v-else-if="user.gender === '1'" />
               <User v-else />
             </el-icon>
-            gender
+            性别
           </template>
           <el-tag
               size="small"
@@ -60,36 +60,36 @@
           </el-tag>
         </el-descriptions-item>
 
-        <!-- Mail -->
+        <!-- 邮箱 -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Message /></el-icon>
-            Mail
+            邮箱
           </template>
-          {{ user.email || 'Not set' }}
+          {{ user.email || '未设置' }}
         </el-descriptions-item>
 
-        <!-- phone number -->
+        <!-- 手机号码 -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Phone /></el-icon>
-            phone number
+            手机号码
           </template>
-          {{ user.phone || 'Not set' }}
+          {{ user.phone || '未设置' }}
         </el-descriptions-item>
 
-        <!-- Registration Date -->
+        <!-- 注册日期 -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Calendar /></el-icon>
-            Registration Date
+            注册日期
           </template>
-          {{ registerDate || 'unknown' }}
+          {{ registerDate || '未知' }}
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
 
-    <el-empty v-else description="User information not found" />
+    <el-empty v-else description="未找到用户信息" />
   </div>
 </template>
 
@@ -127,7 +127,7 @@ const user = computed(() => ({
 
 
 const registerDate = computed(() => {
-  if (!user.value.addtime) return "Not provided";
+  if (!user.value.addtime) return "未提供";
   const date = new Date(user.value.addtime);
   return date.toISOString().split("T")[0];
 });
@@ -139,9 +139,9 @@ const avatarUrl = computed(() => {
 });
 
 const genderText = computed(() => {
-  if (user.value.gender === '1') return "Male";
-  if (user.value.gender === '0') return "Female";
-  return "Not set";
+  if (user.value.gender === '1') return "男";
+  if (user.value.gender === '0') return "女";
+  return "未设置";
 });
 
 
