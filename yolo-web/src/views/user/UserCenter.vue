@@ -24,7 +24,7 @@
                 size="medium"
                 plain
                 @click="openEditDialog"
-            >编辑</el-button>
+            >Edit</el-button>
 
           </div>
         </div>
@@ -50,7 +50,7 @@
                 index="info"
                 :route="{ name: 'info', params: { id: loginUserStore.loginUser?.id } }">
               <i class="el-icon-user"></i>
-              <span slot="title">个人简介</span>
+              <span slot="title">Personal Profile</span>
             </el-menu-item>
 
             <el-menu-item
@@ -58,7 +58,7 @@
                 :route="{ name: 'ChangePassword', params: { id: loginUserStore.loginUser?.id } }">
 
               <i class="el-icon-edit-outline"></i>
-              <span slot="title">修改密码</span>
+              <span slot="title">Change Password</span>
             </el-menu-item>
 
 
@@ -73,7 +73,7 @@
         <router-view></router-view>
       </div>
     </div>
-    <!-- 引入 PersonalDia 组件 -->
+    <!-- Importing the PersonalDia component -->
     <PersonalDia  v-model="dialogVisible" />
 
 
@@ -99,15 +99,15 @@ import {ref, reactive, computed, watchEffect} from "vue";
 import PersonalDia from "@/views/user/PersonalDia.vue";
 import myApi from "@/utils/request";
 
-// 通过 computed 获取用户数据并更新 UI
+// Get user data through computed and update UI
 computed(() => loginUserStore.loginUser);
 
-// 控制对话框的显示与隐藏
+// Control the display and hiding of dialog boxes
 const dialogVisible = ref(false);
 
 
 const openEditDialog = () => {
-  dialogVisible.value = true;  // 设置对话框可见
+  dialogVisible.value = true;  // Set dialog box to be visible
 };
 
 
@@ -137,16 +137,16 @@ const openEditDialog = () => {
 .PersonTop {
   width: 1000px;
   height: 160px;
-  padding: 20px; /* 添加内边距，使其看起来像卡片 */
+  padding: 20px; /* Add padding to make it look like a card */
   background-color: white;
   margin-top: 30px;
-  position: relative;  /* 为了与绝对定位的元素对齐 */
+  position: relative;  /* In order to align with absolutely positioned elements齐 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   -webkit-box-shadow: 0 4px 8px 6px rgba(7, 17, 27, .06);
   box-shadow: 0 4px 8px 6px rgba(7, 17, 27, .06);
-  overflow: hidden; /* 防止内容溢出 */
+  overflow: hidden; /* Prevent content from overflowing */
   border-radius: 2px
 }
 
@@ -213,14 +213,14 @@ const openEditDialog = () => {
 
 
 .el-menu-item.is-active {
-  background-color: #ecf5ff; /* 激活项的背景颜色 */
+  background-color: #ecf5ff; /* Background color of the active item */
 }
 
 .el-menu-item.is-active > span {
-  color: #00c3ff; /* 激活时字体颜色 */
+  color: #00c3ff; /* Font color when activated */
 }
 
-/*下面部分样式*/
+/*The following part style*/
 .person_body {
   width: 1000px;
   margin-top: 30px;
@@ -246,7 +246,7 @@ const openEditDialog = () => {
   font-size: 22px;
   border-bottom: 1px solid #f0f0f0;
   background-image: -webkit-linear-gradient(
-      90deg,  /* 使用标准角度值 */
+      90deg,  /* Use standard angle values */
       rgb(42, 134, 141),
       #28506a 40%,
       rgba(204, 82, 176, 0.28) 100%

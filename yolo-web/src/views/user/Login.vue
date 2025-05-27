@@ -3,24 +3,24 @@
     <div class="login-container">
       <div class="login-box">
         <div class="page-header">
-          <h1 class="login-title">用户登录</h1>
+          <h1 class="login-title">User Login</h1>
         </div>
 
         <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
 
         <form @submit.prevent="handleSubmit" class="form">
-          <el-form-item label="账号" required>
-            <el-input v-model="form.account" placeholder="请输入账号" clearable />
+          <el-form-item label="Account" required>
+            <el-input v-model="form.account" placeholder="Please enter your account" clearable />
           </el-form-item>
 
-          <el-form-item label="密码" required>
-            <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password clearable />
+          <el-form-item label="Password" required>
+            <el-input v-model="form.password" type="password" placeholder="Please enter your password" show-password clearable />
           </el-form-item>
 
-          <el-button type="primary" :loading="loading" class="login-btn" native-type="submit">登录</el-button>
+          <el-button type="primary" :loading="loading" class="login-btn" native-type="submit">Login</el-button>
 
           <div class="register-link">
-            没有账户？<router-link to="/register">立即注册</router-link>
+            No account?<router-link to="/register">Register Now</router-link>
           </div>
         </form>
       </div>
@@ -53,7 +53,7 @@ const handleSubmit = async () => {
       errorMessage.value = response.data.error
     }
   } catch (e) {
-    errorMessage.value = '系统繁忙，请稍后再试！'
+    errorMessage.value = 'The system is busy, please try again later!'
   } finally {
     loading.value = false
   }

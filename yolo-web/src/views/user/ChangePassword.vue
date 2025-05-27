@@ -16,19 +16,19 @@
 <!--              size="large"-->
 
 <!--          >-->
-<!--            <el-form-item label="原密码" prop="old_pwd">-->
+<!--            <el-form-item label="Current Password" prop="old_pwd">-->
 <!--              <el-input v-model="pwdForm.old_pwd" type="password"></el-input>-->
 
 <!--            </el-form-item>-->
-<!--            <el-form-item label="新密码" prop="new_pwd">-->
+<!--            <el-form-item label="New Password" prop="new_pwd">-->
 <!--              <el-input v-model="pwdForm.new_pwd" type="password"></el-input>-->
 <!--            </el-form-item>-->
-<!--            <el-form-item label="确认新密码" prop="re_pwd">-->
+<!--            <el-form-item label="Confirm New Password" prop="re_pwd">-->
 <!--              <el-input v-model="pwdForm.re_pwd" type="password"></el-input>-->
 <!--            </el-form-item>-->
 <!--            <el-form-item>-->
-<!--              <el-button @click="onSubmit" type="primary">确定修改</el-button>-->
-<!--              <el-button @click="onReset((formRef))">清除</el-button>-->
+<!--              <el-button @click="onSubmit" type="primary">Confirm the changes</el-button>-->
+<!--              <el-button @click="onReset((formRef))">Clear</el-button>-->
 <!--            </el-form-item>-->
 <!--          </el-form>-->
 <!--        </el-col>-->
@@ -60,7 +60,7 @@
 
 <!--const checkOldSame = (rule:any, value:any, callback: any) => {-->
 <!--  if (value === pwdForm.value.old_pwd) {-->
-<!--    callback(new Error('原密码和新密码不能一样!'))-->
+<!--    callback(new Error('The original password and the new password cannot be the same!'))-->
 <!--  } else {-->
 <!--    callback()-->
 <!--  }-->
@@ -68,37 +68,37 @@
 
 <!--const checkNewSame = (rule:any, value:any, callback: any) => {-->
 <!--  if (value !== pwdForm.value.new_pwd) {-->
-<!--    callback(new Error('新密码和确认再次输入的新密码不一样!'))-->
+<!--    callback(new Error('The new password and the new password you enter again to confirm are different!'))-->
 <!--  } else {-->
 <!--    callback()-->
 <!--  }-->
 <!--}-->
 <!--const rules = {-->
-<!--  // 原密码-->
+<!--  // Original password-->
 <!--  old_pwd: [-->
-<!--    { required: true, message: '请输入密码', trigger: 'blur' },-->
+<!--    { required: true, message: 'Please enter your password', trigger: 'blur' },-->
 <!--    {-->
 <!--      pattern: /^\S{6,15}$/,-->
-<!--      message: '密码长度必须是6-15位的非空字符串',-->
+<!--      message: 'The password must be a non-empty string of 6-15 characters.',-->
 <!--      trigger: 'blur'-->
 <!--    }-->
 <!--  ],-->
-<!--  // 新密码-->
+<!--  // New Password-->
 <!--  new_pwd: [-->
-<!--    { required: true, message: '请输入新密码', trigger: 'blur' },-->
+<!--    { required: true, message: 'Please enter new password', trigger: 'blur' },-->
 <!--    {-->
 <!--      pattern: /^\S{6,15}$/,-->
-<!--      message: '密码长度必须是6-15位的非空字符串',-->
+<!--      message: 'The password must be a non-empty string of 6-15 characters.',-->
 <!--      trigger: 'blur'-->
 <!--    },-->
 <!--    { validator: checkOldSame, trigger: 'blur' }-->
 <!--  ],-->
-<!--  // 确认新密码-->
+<!--  // Confirm New Password-->
 <!--  re_pwd: [-->
-<!--    { required: true, message: '请再次确认新密码', trigger: 'blur' },-->
+<!--    { required: true, message: 'Please confirm your new password again', trigger: 'blur' },-->
 <!--    {-->
 <!--      pattern: /^\S{6,15}$/,-->
-<!--      message: '密码长度必须是6-15位的非空字符串',-->
+<!--      message: 'The password must be a non-empty string of 6-15 characters.',-->
 <!--      trigger: 'blur'-->
 <!--    },-->
 <!--    { validator: checkNewSame, trigger: 'blur' }-->
@@ -106,9 +106,9 @@
 <!--}-->
 
 
-<!--// 提交表单，修改密码-->
+<!--// Submit the form to change the password-->
 <!--const onSubmit = async () => {-->
-<!--  // 校验表单-->
+<!--  // Validation form-->
 <!--  const isValid = await formRef.value?.validate();-->
 <!--  if (!isValid) return;-->
 
@@ -122,19 +122,19 @@
 <!--    });-->
 
 <!--    if(response.data.code == 200){-->
-<!--      // 修改密码成功后，清空本地存储的用户信息-->
+<!--      // After the password is successfully changed, clear the locally stored user information-->
 <!--      loginUserStore.clearLoginUser();-->
-<!--      // 跳转到登录页面-->
+<!--      // Jump to the login page-->
 <!--      router.push({ name: 'login' });-->
 <!--      ElMessage({-->
-<!--        message: '密码修改成功,请重新登录！',-->
+<!--        message: 'Password modification successful, please log in again!',-->
 <!--        type: 'success',-->
 <!--      })-->
 <!--    } else {-->
 <!--      ElMessage.error(response.data.error)-->
 <!--    }-->
 <!--  } catch (error) {-->
-<!--    console.error('修改密码失败:', error);-->
+<!--    console.error('Password change failed:', error);-->
 <!--  }-->
 <!--};-->
 
@@ -153,15 +153,15 @@
 
 <!--<style scoped>-->
 
-<!--/* 使用 :deep() 来覆盖 el-input 的边框 */-->
+<!--/* Use :deep() to cover the border of el-input */-->
 <!--:deep(.el-input__wrapper) {-->
 <!--  padding: 0 !important;-->
 <!--}-->
-<!--/* 让 el-row 包裹的内容看起来像方框 */-->
+<!--/* Make the content wrapped by el-row look like a box */-->
 <!--.password-change {-->
 
-<!--  justify-content: center; /* 水平居中 */-->
-<!--  align-items: center; /* 垂直居中 */-->
+<!--  justify-content: center; /* Horizontal Center */-->
+<!--  align-items: center; /* Vertical Center */-->
 <!--}-->
 
 

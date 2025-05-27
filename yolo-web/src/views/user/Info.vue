@@ -1,48 +1,48 @@
 <!--<template>-->
 <!--  <div>-->
 <!--    <el-card v-if="user">-->
-<!--      <el-descriptions class="margin-top" title="简介" :column="2" border>-->
-<!--        &lt;!&ndash; 头像 &ndash;&gt;-->
+<!--      <el-descriptions class="margin-top" title="Introduction" :column="2" border>-->
+<!--        &lt;!&ndash; avatar &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon ><PictureFilled /></el-icon>-->
-<!--            头像-->
+<!--            avatar-->
 <!--          </template>-->
 <!--          <img-->
 <!--              v-if="avatarUrl "-->
 <!--              class="img"-->
 <!--              :src="avatarUrl"-->
-<!--              alt="用户头像"-->
+<!--              alt="User Avatar"-->
 <!--          />-->
 <!--        </el-descriptions-item>-->
 
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><User /></el-icon>-->
-<!--            账号-->
+<!--            account-->
 <!--          </template>-->
-<!--          {{ user.account || '未设置' }}-->
+<!--          {{ user.account || 'Not set' }}-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 昵称 &ndash;&gt;-->
+<!--        &lt;!&ndash; Nick name &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><UserFilled /></el-icon>-->
-<!--            昵称-->
+<!--            Nick name-->
 <!--          </template>-->
-<!--          {{ user.nick_name || '未设置昵称' }}-->
+<!--          {{ user.nick_name || 'No nickname set' }}-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 年龄 &ndash;&gt;-->
+<!--        &lt;!&ndash; age &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><Odometer /></el-icon>-->
-<!--            年龄-->
+<!--            age-->
 <!--          </template>-->
-<!--          {{ user.age || '未设置' }}-->
+<!--          {{ user.age || 'Not set' }}-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 性别 &ndash;&gt;-->
+<!--        &lt;!&ndash; gender &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon>-->
@@ -50,7 +50,7 @@
 <!--              <Male v-else-if="user.gender === '1'" />-->
 <!--              <User v-else />-->
 <!--            </el-icon>-->
-<!--            性别-->
+<!--            gender-->
 <!--          </template>-->
 <!--          <el-tag-->
 <!--              size="small"-->
@@ -60,36 +60,36 @@
 <!--          </el-tag>-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 邮箱 &ndash;&gt;-->
+<!--        &lt;!&ndash; Email &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><Message /></el-icon>-->
-<!--            邮箱-->
+<!--            Email-->
 <!--          </template>-->
-<!--          {{ user.email || '未设置' }}-->
+<!--          {{ user.email || 'Not set' }}-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 手机号码 &ndash;&gt;-->
+<!--        &lt;!&ndash; phone number &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><Phone /></el-icon>-->
-<!--            手机号码-->
+<!--            phone number-->
 <!--          </template>-->
-<!--          {{ user.phone || '未设置' }}-->
+<!--          {{ user.phone || 'Not set' }}-->
 <!--        </el-descriptions-item>-->
 
-<!--        &lt;!&ndash; 注册日期 &ndash;&gt;-->
+<!--        &lt;!&ndash; Registration Date &ndash;&gt;-->
 <!--        <el-descriptions-item>-->
 <!--          <template #label>-->
 <!--            <el-icon><Calendar /></el-icon>-->
-<!--            注册日期-->
+<!--            Registration Date-->
 <!--          </template>-->
-<!--          {{ registerDate || '未知' }}-->
+<!--          {{ registerDate || 'unknown' }}-->
 <!--        </el-descriptions-item>-->
 <!--      </el-descriptions>-->
 <!--    </el-card>-->
 
-<!--    <el-empty v-else description="未找到用户信息" />-->
+<!--    <el-empty v-else description="User information not found" />-->
 <!--  </div>-->
 <!--</template>-->
 
@@ -127,7 +127,7 @@
 
 
 <!--const registerDate = computed(() => {-->
-<!--  if (!user.value.addtime) return "未提供";-->
+<!--  if (!user.value.addtime) return "Not provided";-->
 <!--  const date = new Date(user.value.addtime);-->
 <!--  return date.toISOString().split("T")[0];-->
 <!--});-->
@@ -139,9 +139,9 @@
 <!--});-->
 
 <!--const genderText = computed(() => {-->
-<!--  if (user.value.gender === '1') return "男";-->
-<!--  if (user.value.gender === '0') return "女";-->
-<!--  return "未设置";-->
+<!--  if (user.value.gender === '1') return "Male";-->
+<!--  if (user.value.gender === '0') return "Female";-->
+<!--  return "Not Set";-->
 <!--});-->
 
 

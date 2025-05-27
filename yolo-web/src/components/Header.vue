@@ -6,17 +6,17 @@
       <div class="title">Recognition system based on YOLOv11</div>
     </div>
 
-    <!-- 导航菜单整体居中容器 -->
+    <!-- The navigation menu is centered in the container -->
     <div class="nav-container">
       <nav class="nav-menu" v-show="!menuVisibleOnMobile">
-        <RouterLink to="/hello" active-class="router-link-active">首页</RouterLink>
-        <RouterLink to="/detect" active-class="router-link-active">检测程序</RouterLink>
-        <RouterLink to="/user/center" active-class="router-link-active">个人中心</RouterLink>
-        <RouterLink to="/about" active-class="router-link-active">关于</RouterLink>
+        <RouterLink to="/hello" active-class="router-link-active">HOME</RouterLink>
+        <RouterLink to="/detect" active-class="router-link-active">Detection</RouterLink>
+        <RouterLink to="/user/center" active-class="router-link-active">My profile</RouterLink>
+        <RouterLink to="/about" active-class="router-link-active">About</RouterLink>
       </nav>
     </div>
 
-    <!-- 用户信息 / 登录注册 -->
+    <!-- User Information / Login Registration -->
     <div class="user-area">
       <div v-if="loginUserStore.loginUser" class="avatar-show">
         <el-avatar :src="avatarUrl" class="avatar" />
@@ -27,19 +27,19 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+              <el-dropdown-item @click="logout">Logout</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
       </div>
       <div v-else class="header-right">
-        <RouterLink to="/login" class="auth-link">登录</RouterLink>
+        <RouterLink to="/login" class="auth-link">Login</RouterLink>
         <span class="divider">｜</span>
-        <RouterLink to="/register" class="auth-link">注册</RouterLink>
+        <RouterLink to="/register" class="auth-link">Register</RouterLink>
       </div>
     </div>
 
-    <!-- 移动端菜单按钮 -->
+    <!-- Mobile menu button -->
     <div class="hamburger" @click="menuVisibleOnMobile = !menuVisibleOnMobile">
       <span></span><span></span><span></span>
     </div>

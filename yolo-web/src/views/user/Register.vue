@@ -1,38 +1,38 @@
 <template>
   <div class="register-page">
     <div class="register-container">
-      <h1 class="register-title">用户注册</h1>
+      <h1 class="register-title">User Registration</h1>
       <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
       <form @submit.prevent="handleSubmit" class="form">
-        <el-form-item label="账号" required>
-          <el-input v-model="form.account" placeholder="请输入账号" clearable />
+        <el-form-item label="Account" required>
+          <el-input v-model="form.account" placeholder="Please enter your account" clearable />
           <div v-if="errors.account" class="field-error">{{ errors.account }}</div>
         </el-form-item>
 
-        <el-form-item label="密码" required>
-          <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password clearable />
+        <el-form-item label="Password" required>
+          <el-input v-model="form.password" type="password" placeholder="Please enter your password" show-password clearable />
           <div v-if="errors.password" class="field-error">{{ errors.password }}</div>
         </el-form-item>
 
-        <el-form-item label="确认密码" required>
-          <el-input v-model="form.checkPassword" type="password" placeholder="请确认密码" show-password clearable />
+        <el-form-item label="Confirm Password" required>
+          <el-input v-model="form.checkPassword" type="password" placeholder="Please confirm your password" show-password clearable />
           <div v-if="errors.checkPassword" class="field-error">{{ errors.checkPassword }}</div>
         </el-form-item>
 
-        <el-form-item label="手机号" required>
-          <el-input v-model="form.phone" placeholder="请输入手机号" clearable />
+        <el-form-item label="Phone number" required>
+          <el-input v-model="form.phone" placeholder="Please enter your phone number" clearable />
           <div v-if="errors.phone" class="field-error">{{ errors.phone }}</div>
         </el-form-item>
 
-        <el-form-item label="邮箱" required>
-          <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
+        <el-form-item label="Email" required>
+          <el-input v-model="form.email" placeholder="Please enter your email" clearable />
           <div v-if="errors.email" class="field-error">{{ errors.email }}</div>
         </el-form-item>
 
-        <el-button type="primary" class="register-btn" :loading="loading" native-type="submit">注册</el-button>
+        <el-button type="primary" class="register-btn" :loading="loading" native-type="submit">Register</el-button>
 
         <div class="login-link">
-          已有账号？<router-link to="/login">立即登录</router-link>
+          Already have an account?<router-link to="/login">Sign in now</router-link>
         </div>
       </form>
     </div>
