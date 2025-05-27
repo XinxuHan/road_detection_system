@@ -1,8 +1,8 @@
 <template>
   <div id="mr-mainbody" class="container mr-mainbody">
-    <!-- First row -->
+    <!-- 第一行 -->
     <div class="control-panel">
-      <el-select v-model="value" placeholder="Default Model" style="width: 800px" size="large" @change="handleModelChange">
+      <el-select v-model="value" placeholder="默认模型" style="width: 800px" size="large" @change="handleModelChange">
         <el-option
             v-for="item in options"
             :key="item.value"
@@ -11,14 +11,14 @@
       </el-select>
 
       <el-button type="primary" style="width: 130px; height: 40px;" @click="triggerFileInput">
-        Select image
+        选择图像
       </el-button>
 
       <el-button
           type="primary"
           style="width:130px; height: 40px;"
           @click="triggerVideoInput">
-        Select Video
+        选择视频
       </el-button>
 
       <el-button
@@ -26,25 +26,25 @@
           style="width:130px; height: 40px;"
           @click="showCameraDialog"
       >
-        Camera detection
+        摄像头检测
       </el-button>
 
-      <!-- Camera selection dialog -->
+      <!-- 摄像头选择对话框 -->
       <el-dialog
           v-model="cameraDialogVisible"
-          title="Select Camera"
+          title="选择摄像头"
           width="30%"
           @closed="resetCameraSelection"
       >
         <el-select
             v-model="selectedCamera"
-            placeholder="Please select a camera device"
+            placeholder="请选择摄像头设备"
             @change="onCameraChange"
         >
           <el-option
               v-for="(camera, index) in cameraList"
               :key="index"
-              :label="`Camera ${index} (${camera.label})`"
+              :label="`摄像头 ${index} (${camera.label})`"
               :value="index"
           />
 
@@ -56,13 +56,13 @@
 
 
 
-      <span class="confidence-label">Confidence: </span>
+      <span class="confidence-label">置信度：</span>
       <el-slider style="width: 50%" v-model="conf_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('confidence')" />
       <span>IoU：</span>
       <el-slider style="width: 50%" v-model="iou_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('iou')" />
 
       <!--      <el-button class="fixed-btn" :type="loading ? 'info' : 'primary'" :loading="loading" @click="uploadAndStyleTransfer" :disabled="loading" style="width: 130px; height: 40px;">-->
-      <!--        {{ loading ? 'Uploading...' : 'Start detection' }}-->
+      <!--        {{ loading ? '正在上传...' : '开始检测' }}-->
       <!--      </el-button>-->
 
       <el-button
@@ -72,17 +72,17 @@
           @click="uploadAndStyleTransfer"
           :disabled="loading"
           style="width: 130px; height: 40px;">
-        {{ loading ? 'Detecting...' : 'Start detecting' }}
+        {{ loading ? '正在检测...' : '开始检测' }}
       </el-button>
 
 
       <el-button type="primary" style="width: 130px; height: 40px;" @click="stopDetection">
-        End video detection
+        结束视频检测
       </el-button>
 
     </div>
 
-    <!-- Second row: Image display area -->
+    <!-- 第二行：图片显示区域 -->
     <div class="image-container">
       <div class="imagePreview">
         <video
@@ -122,13 +122,13 @@
       </div>
     </div>
 
-    <!-- Table Area -->
+    <!-- 表格区域 -->
     <div class="content-table">
       <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
-        <el-table-column prop="id" label="Category ID" width="180" />
-        <el-table-column prop="class_name" label="category" width="180" />
-        <el-table-column prop="conf" label="Confidence" width="180" />
-        <el-table-column prop="bbox" label="Target coordinates" />
+        <el-table-column prop="id" label="类别ID" width="180" />
+        <el-table-column prop="class_name" label="类别" width="180" />
+        <el-table-column prop="conf" label="置信度" width="180" />
+        <el-table-column prop="bbox" label="目标坐标" />
       </el-table>
     </div>
   </div>
@@ -152,7 +152,7 @@ let pollingInterval: number | null = null;
 
 
 
-// Camera
+// 摄像头
 const cameraDialogVisible = ref(false);
 const cameraList = ref<MediaDeviceInfo[]>([]);
 const selectedCamera = ref('')
@@ -161,24 +161,24 @@ const resetCameraSelection = () => {
 };
 
 
-// Get the camera list
+// 获取摄像头列表
 const showCameraDialog = async () => {
   try {
-    // Request camera permission first
+    // 先请求摄像头权限
     await navigator.mediaDevices.getUserMedia({ video: true });
 
     const devices = await navigator.mediaDevices.enumerateDevices();
     cameraList.value = devices.filter(d => d.kind === 'videoinput');
 
     if (cameraList.value.length === 0) {
-      ElMessage.warning("No available cameras found");
+      ElMessage.warning("未找到可用摄像头");
       return;
     }
 
     cameraDialogVisible.value = true;
   } catch (error) {
-    ElMessage.error("Camera access denied or unavailable");
-    console.error("Camera access error:", error);
+    ElMessage.error("摄像头访问被拒绝或不可用");
+    console.error("摄像头访问错误:", error);
   }
 };
 
@@ -186,14 +186,14 @@ const showCameraDialog = async () => {
 
 const onCameraChange = async (deviceIndex: number) => {
   await startCameraDetection(deviceIndex);
-  cameraDialogVisible.value = false; // Close dialog box
+  cameraDialogVisible.value = false; // 关闭对话框
 };
 
 
 
 
 const startCameraDetection = async (deviceIndex: number) => {
-  await stopDetection(); // Stop the last test first
+  await stopDetection(); // 先停止上一次检测
   loading.value = true;
   try {
     const response = await fetch("http://localhost:8000/api/start-camera", {
@@ -210,11 +210,11 @@ const startCameraDetection = async (deviceIndex: number) => {
 
     if (response.ok) {
       currentMediaType.value = "camera";
-      pollResultsCamera(); // Polling camera detection results
-      ElMessage.success("Camera detection started");
+      pollResultsCamera(); // 轮询摄像头检测结果
+      ElMessage.success("摄像头检测已启动");
     }
   } catch (err) {
-    console.error("Failed to start camera detection:", err);
+    console.error("启动摄像头检测失败:", err);
     loading.value = false;
   }
 };
@@ -236,21 +236,21 @@ const options = [
 
 const handleModelChange = async () => {
   if (!value.value) {
-    ElMessage.warning("Please select a model");
+    ElMessage.warning("请选择一个模型");
     return;
   }
 
   try {
     const response = await switchModel(value.value);
-    console.log("Server Response:", response.data);
+    console.log("服务器响应:", response.data);
     if (response.data.success) {
-      ElMessage.success(`Model switching successful: ${value.value}`);
+      ElMessage.success(`模型切换成功: ${value.value}`);
     } else {
-      ElMessage.error(`Switch failed: ${response.data.error}`);
+      ElMessage.error(`切换失败: ${response.data.error}`);
     }
   } catch (error) {
-    console.error("Network request error:", error);
-    ElMessage.error("Network request failed");
+    console.error("网络请求错误:", error);
+    ElMessage.error("网络请求失败");
   }
 };
 
@@ -268,20 +268,20 @@ const formatTooltip = (val: number) => {
 const updateModelParams = async (changedParam: "confidence" | "iou") => {
   try {
     const response = await setModelParams(conf_value.value / 100, iou_value.value / 100);
-    console.log("Server Response:", response.data);
+    console.log("服务器响应:", response.data);
 
     if (response.data.success) {
       if (changedParam === "confidence") {
-        ElMessage.success(`Confidence updated successfully: ${conf_value.value/ 100}`);
+        ElMessage.success(`置信度更新成功: ${conf_value.value/ 100}`);
       } else if (changedParam === "iou") {
-        ElMessage.success(`IoU updated successfully: ${iou_value.value/ 100}`);
+        ElMessage.success(`IoU 更新成功: ${iou_value.value/ 100}`);
       }
     } else {
-      ElMessage.error(`Update failed: ${response.data.error}`);
+      ElMessage.error(`更新失败: ${response.data.error}`);
     }
   } catch (error) {
-    console.error("Network request error:", error);
-    ElMessage.error("Parameter update failed");
+    console.error("网络请求错误:", error);
+    ElMessage.error("参数更新失败");
   }
 };
 
@@ -289,9 +289,9 @@ const updateModelParams = async (changedParam: "confidence" | "iou") => {
 
 interface DetectionResult {
   id: number;
-  class_name: string;  // Category Name
-  conf: string;        // Confidence
-  bbox: {              // coordinate
+  class_name: string;  // 类别名称
+  conf: string;        // 置信度
+  bbox: {              // 坐标
     x1: number;
     y1: number;
     x2: number;
@@ -310,11 +310,11 @@ const tableData = ref<DetectionResult[]>([]);
 
 
 
-// Select image
+// 选择图片
 const triggerFileInput = () => {
   const fileInput = document.getElementById('imageInput') as HTMLInputElement;
   if (fileInput) {
-    fileInput.click();  // Click Event
+    fileInput.click();  // 点击事件
   }
 };
 
@@ -324,24 +324,24 @@ const triggerVideoInput = () => {
 };
 
 
-// Preview image function
+// 预览图片功能
 const handleImageUpload = (event: Event) => {
   currentMediaType.value = 'image';
   const input = event.target as HTMLInputElement;
   if (input.files && input.files[0]) {
     const reader = new FileReader();
     reader.onload = () => {
-      mediaUrl.value = reader.result as string; // Set the image preview URL
+      mediaUrl.value = reader.result as string; // 设置图片预览 URL
     };
     reader.readAsDataURL(input.files[0]);
   } else {
-    mediaUrl.value = null; // Clear Preview
+    mediaUrl.value = null; // 清除预览
   }
 };
 
 
 
-// Handling file uploads
+// 处理文件上传
 const handleVideoUpload = (event: Event) => {
   currentMediaType.value = 'video';
   const input = event.target as HTMLInputElement;
@@ -355,10 +355,10 @@ const handleVideoUpload = (event: Event) => {
 
 
 const uploadAndStyleTransfer = async () => {
-  loading.value = true;  // Set loading state
+  loading.value = true;  // 设置加载状态
 
   if (currentMediaType.value === "image") {
-    // Processing image detection
+    // 处理图片检测
     const formData = new FormData();
     const input = document.getElementById("imageInput") as HTMLInputElement;
     if (input.files && input.files[0]) {
@@ -390,16 +390,16 @@ const uploadAndStyleTransfer = async () => {
           bbox: `(${item.bbox.x1}, ${item.bbox.y1}), (${item.bbox.x2}, ${item.bbox.y2})`,
         }));
       } else {
-        console.error("The URL to the processed image is missing from the response.");
+        console.error("响应中缺少处理后图像的URL.");
       }
     } catch (error) {
       loading.value = false;
       console.error("Error:", error);
     }
   } else if (currentMediaType.value === "video") {
-    // Processing video detection
+    // 处理视频检测
     if (!videoFile.value) {
-      ElMessage.warning("Please select a video first!");
+      ElMessage.warning("请先选择一个视频！");
       loading.value = false;
       return;
     }
@@ -415,20 +415,20 @@ const uploadAndStyleTransfer = async () => {
 
 
       if (response.ok) {
-        console.log("The video was uploaded successfully, and the polling detection frame started...");
+        console.log("视频上传成功，开始轮询检测帧...");
         pollResults();
       } else {
-        console.error("Video upload failed");
+        console.error("视频上传失败");
       }
     } catch (error) {
-      console.error("Video upload failed:", error);
+      console.error("视频上传失败:", error);
     }
   }
 };
 
 
 let lastFrameId = ref(0);
-// Polling to get video frames
+// 轮询获取视频帧
 const pollResults = async () => {
   pollingInterval = window.setInterval(async () => {
     try {
@@ -439,10 +439,10 @@ const pollResults = async () => {
         resultImageUrl.value = data.frame_url
         lastFrameId.value = data.frame_id
       }else {
-        resultImageUrl.value = null; // **Clear display**
+        resultImageUrl.value = null; // **清空显示**
       }
 
-      // Update table data
+      // 更新表格数据
       if (data.detections) {
         tableData.value = data.detections.map((item: any) => ({
           id: item.id,
@@ -459,11 +459,11 @@ const pollResults = async () => {
         loading.value = false
       }
     } catch (error) {
-      console.error("Polling failed:", error)
+      console.error("轮询失败:", error)
       if (pollingInterval) clearInterval(pollingInterval)
       loading.value = false
     }
-  }, 300) // Polling interval 300ms
+  }, 300) // 轮询间隔300ms
 }
 
 
@@ -474,15 +474,15 @@ const pollResultsCamera = () => {
   pollingInterval = setInterval(async () => {
     try {
       const response = await fetch("http://localhost:8000/api/get-latest-frame");
-      if (!response.ok) throw new Error("Request failed");
+      if (!response.ok) throw new Error("请求失败");
 
       const data = await response.json();
       if (data.frame) {
-        resultImageUrl.value = `data:image/jpeg;base64,${data.frame}`; // Update image
+        resultImageUrl.value = `data:image/jpeg;base64,${data.frame}`; // 更新图片
       }else {
-        resultImageUrl.value = null; // Clear
+        resultImageUrl.value = null; // 清空
       }
-      // Update table data
+      // 更新表格数据
       if (data.detections) {
         tableData.value = data.detections.map((item: any) => ({
           id: item.id,
@@ -492,10 +492,10 @@ const pollResultsCamera = () => {
         }));
       }
     } catch (error) {
-      console.error("Polling failed:", error);
+      console.error("轮询失败:", error);
       resultImageUrl.value = null;
     }
-  }, 500); // 500ms request once
+  }, 500); // 500ms 请求一次
 };
 
 
@@ -507,7 +507,7 @@ const stopDetection = async () => {
       method: "POST"
     });
 
-    // Force reset of frontend state
+    // 强制重置前端状态
     if (pollingInterval) {
       clearInterval(pollingInterval);
       pollingInterval = null;
@@ -516,7 +516,7 @@ const stopDetection = async () => {
     resultImageUrl.value = null;
 
   } catch (error) {
-    console.error("Termination request failed:", error);
+    console.error("终止请求失败:", error);
 
   }
 };
