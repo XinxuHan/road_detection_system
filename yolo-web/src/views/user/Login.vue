@@ -4,16 +4,16 @@
       <div id="mr-content" class="mr-content col-xs-12">
         <div class="login-wrap" style="margin-bottom: 60px; margin-top: 50px;">
           <div style="max-width: 540px; margin: 0 auto;">
-<!--            <a href="/" title="点击返回首页">-->
-<!--              <img src="../assets/logo.svg" alt="返回首页" />-->
+<!--            <a href="/" title="Click to return to the home page">-->
+<!--              <img src="../assets/logo.svg" alt="Back to Home" />-->
 <!--            </a>-->
           </div>
           <div class="login">
             <div class="page-header">
-              <h1 class="login_h1">用户登录</h1>
+              <h1 class="login_h1">User login</h1>
             </div>
 
-            <!-- 错误信息 -->
+            <!-- error message -->
             <div v-if="errorMessage" style="color:red;text-align:center;font-size:16px">
               {{ errorMessage }}
             </div>
@@ -21,32 +21,32 @@
             <form @submit.prevent="handleSubmit" class="form-horizontal">
               <div class="form-group">
                 <div class="col-sm-4 control-label">
-                  <label for="account" class="required">账号：</label>
+                  <label for="account" class="required">account:</label>
                 </div>
                 <div class="col-sm-8">
-                  <input v-model="form.account" id="account" type="text" class="form-control" placeholder="请输入账号" required />
+                  <input v-model="form.account" id="account" type="text" class="form-control" placeholder="Please enter your account number" required />
                 </div>
               </div>
               <div class="form-group">
                 <div class="col-sm-4 control-label">
-                  <label for="password" class="required">密码：</label>
+                  <label for="password" class="required">password:</label>
                 </div>
                 <div class="col-sm-8">
-                  <input v-model="form.password" id="password" type="password" class="form-control" placeholder="请输入密码" required />
+                  <input v-model="form.password" id="password" type="password" class="form-control" placeholder="Please enter your password" required />
                 </div>
               </div>
 
               <div class="form-group">
                 <div class="col-sm-offset-4 col-sm-8">
                   <button type="submit" class="btn btn-primary login" :disabled="loading">
-                    登录
+                    Login
                   </button>
                 </div>
               </div>
 
               <div class="form-group" style="border-top: 1px solid #D9D9D9; margin: 20px;">
                 <label style="float: right; color: #858585; margin-right: 40px; margin-top: 10px; font-size: 14px;">
-                  没有账户？<router-link to="/register">立即注册</router-link>
+                  No account?<router-link to="/register">Register Now</router-link>
                 </label>
               </div>
             </form>
@@ -65,7 +65,7 @@ import {useLoginUserStore} from "@/store/useLoginUserStore";
 import {carouselContextKey} from "element-plus";
 
 
-// 定义表单数据和加载状态
+// Define form data and loading status
 const form = ref({
   account: '',
   password: ''
@@ -81,30 +81,30 @@ const loginUserStore  = useLoginUserStore();
 
 const handleSubmit = async () => {
   loading.value = true;
-  errorMessage.value = ''; // 清空之前的错误信息
+  errorMessage.value = ''; // Clear previous error messages
 
   try {
-    // 登录请求，确保传递了用户名和密码
+    // Login request, make sure username and password are passed
     const response = await login({
       account: form.value.account,
       password: form.value.password
     });
 
-    // 登录成功，处理用户信息
+    // Login successful, process user information
     if (response.data.success) {
       loginUserStore.setLoginUser(response.data.user);
       //console.log(response.data.user);
-      // 登录成功，保存用户信息到 localStorage
+      // Login successful, save user information to localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));
       router.push('/');
     } else {
-      // 后端返回错误信息
+      // The backend returns an error message
       errorMessage.value = response.data.error
     }
   } catch (error) {
     console.error('Login failed:', error);
-    // 处理失败时的错误信息
-    errorMessage.value = '系统繁忙，请稍后再试！';
+    // Error message when processing fails
+    errorMessage.value = 'The system is busy, please try again later!';
   } finally {
     loading.value = false;
   }
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
 
 
 <style scoped>
-/* 样式设置 */
+/* Style Settings */
 .login-wrap {
   max-width: 540px;
   margin: 0 auto;
