@@ -125,10 +125,10 @@
     <!-- Form -->
     <div class="content-table">
       <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
-        <el-table-column prop="id" label="Category ID" width="180" />
-        <el-table-column prop="class_name" label="Category" width="180" />
+        <el-table-column prop="id" label="ID" width="180" />
+        <el-table-column prop="class_name" label="Class" width="180" />
         <el-table-column prop="conf" label="Confidence" width="180" />
-        <el-table-column prop="bbox" label="Target coordinates" />
+        <el-table-column prop="bbox" label="BBox" />
       </el-table>
     </div>
   </div>

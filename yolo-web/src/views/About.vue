@@ -1,36 +1,35 @@
 <template>
   <div class="about-container">
     <div class="about-content">
-      <h1 class="title">基于 Web 的 YOLOv11 目标检测系统</h1>
+      <h1 class="title">System Introduction</h1>
       <p class="version">Version 1.0.0</p>
 
       <section class="section">
-        <h2>系统简介</h2>
+        <h2>System Introduction</h2>
         <p>
-          本系统是一套基于 Django + Vue3 技术栈开发的“非结构化道路可行驶区域识别平台”，旨在通过深度学习算法实现复杂道路场景下的实时分割与可视化识别。系统后端集成了改进版 YOLOv11语义分割模型，结合前端交互界面，能够高效识别非结构化道路中的可行驶区域与障碍物，广泛适用于自动驾驶、道路巡检及交通安全等场景。
-
-          系统采用前后端分离架构，前端使用 Vue3 + Element Plus 构建响应式交互界面，后端基于 Django 实现 RESTful API 和 WebSocket 通信，保障实时视频流的处理和分割结果的回传。系统支持图片/视频输入、模型参数调节（如置信度和IoU阈值）、实时检测结果展示与多模型快速切换。
+          This system is a "unstructured road drivable area identification platform" developed based on the Django + Vue3 technology stack, which aims to achieve real-time segmentation and visual identification in complex road scenes through deep learning algorithms. The system backend integrates an improved version of the YOLOv11 semantic segmentation model, combined with the front-end interactive interface, which can efficiently identify drivable areas and obstacles in unstructured roads, and is widely used in scenarios such as autonomous driving, road inspections, and traffic safety.
+          The system adopts a front-end and back-end separation architecture. The front-end uses Vue3 + Element Plus to build a responsive interactive interface, and the back-end implements RESTful API and WebSocket communication based on Django to ensure the processing of real-time video streams and the return of segmentation results. The system supports image/video input, model parameter adjustment (such as confidence and IoU threshold), real-time detection result display, and fast switching of multiple models.
         </p>
       </section>
 
       <section class="section">
-        <h2>核心功能</h2>
+        <h2>Core Features</h2>
         <ul>
-          <li>✅ 用户登录和注册</li>
-          <li>✅ 支持 YOLOv11 模型快速替换</li>
-          <li>✅ 更换自己的模型</li>
-          <li>✅ 视频流处理（支持 MP4/AVI 格式，实时帧处理与结果回显）</li>
-          <li>✅ 图像检测（支持 JPG/PNG/BMP 格式）</li>
-          <li>✅ 参数调节（置信度调节，IoU 参数调节）</li>
-          <li>✅ 结果展示（表格形式直观显示检测结果）</li>
+          <li>✅ User Login and Registration</li>
+          <li>✅ Support fast replacement of YOLOv11 model</li>
+          <li>✅ Replace your own model</li>
+          <li>✅ Video stream processing (support MP4/AVI format, real-time frame processing and result display)</li>
+          <li>✅ Image detection (support JPG/PNG/BMP formats)</li>
+          <li>✅ Parameter adjustment (confidence adjustment, IoU parameter adjustment)</li>
+          <li>✅ Result display (intuitive display of test results in table form)</li>
         </ul>
       </section>
 
       <section class="section">
-        <h2>技术</h2>
-        <p><strong>后端：</strong>Django 框架 + YOLOv11 目标检测算法</p>
-        <p><strong>前端：</strong>Vue3 + Element Plus + Pinia 等技术</p>
-        <p><strong>开发工具：</strong>PyCharm、WebStorm、Anaconda3、Node、MySQL 等</p>
+        <h2>technology</h2>
+        <p><strong>back-end:</strong>Django framework + YOLOv11 target detection algorithm</p>
+        <p><strong>front end:</strong>Vue3 + Element Plus + Pinia and other technologies</p>
+        <p><strong>Development Tools:</strong>PyCharm、WebStorm、Anaconda3、Node、MySQL and so on</p>
       </section>
     </div>
   </div>
