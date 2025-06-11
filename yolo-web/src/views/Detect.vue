@@ -80,6 +80,13 @@
         End video detection
       </el-button>
 
+      <el-button type="success" style="width: 130px; height: 40px;" :disabled="!resultImageUrl" @click="downloadImage">
+        Save Image
+      </el-button>
+      <el-button type="success" style="width: 130px; height: 40px;" :disabled="tableData.length === 0" @click="downloadCSV">
+        Save CSV
+      </el-button>
+
     </div>
 
     <!-- Second row: Image display area-->
@@ -526,6 +533,76 @@ const stopDetection = async () => {
 };
 
 
+const downloadImage = async () => {
+  if (!resultImageUrl.value) {
+    return ElMessage.warning('还没有检测结果');
+  }
+
+  try {
+    // 1. 拉取图片资源
+    const res = await fetch(resultImageUrl.value);
+    if (!res.ok) throw new Error(`网络错误：${res.status}`);
+    // 2. 转为二进制 Blob
+    const blob = await res.blob();
+    // 3. 生成临时 object URL
+    const url = URL.createObjectURL(blob);
+
+    // 4. 创建 <a> 并触发下载
+    const a = document.createElement('a');
+    a.href = url;
+    // 提取文件名
+    const segments = resultImageUrl.value.split('/');
+    a.download = segments[segments.length - 1];
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // 5. 释放 URL
+    URL.revokeObjectURL(url);
+
+    ElMessage.success('下载已开始');
+  } catch (err) {
+    console.error(err);
+    ElMessage.error('下载失败，请重试');
+  }
+};
+
+
+const downloadCSV = () => {
+  if (tableData.value.length === 0) {
+    return ElMessage.warning("当前没有检测结果");
+  }
+
+  // 表头
+  const headers = ["ID", "Class", "Confidence", "BBox"];
+  // 每行的数据
+  const rows = tableData.value.map(item => [
+    item.id,
+    item.class_name,
+    item.conf,
+    item.bbox,
+  ]);
+
+  // 拼 CSV 文本
+  let csv = headers.join(",") + "\n"
+          + rows.map(r => r.map(cell => `"${cell}"`).join(",")).join("\n");
+
+  // 构造下载
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  // 可以自定义文件名
+  a.download = `detections_${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+
+  ElMessage.success("CSV 已生成，下载中…");
+};
+
+
 
 
 </script>
@@ -538,7 +615,7 @@ const stopDetection = async () => {
 
 .control-panel {
   position: relative;
-  width: 1200px !important;
+  width: 1300px !important;
   left: -2%;
   display: flex;
   align-items: center;
