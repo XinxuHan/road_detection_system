@@ -615,8 +615,8 @@ const downloadCSV = () => {
 
 .control-panel {
   position: relative;
-  width: 1300px !important;
-  left: -2%;
+  width: 1480px !important;
+  left: -15%;
   display: flex;
   align-items: center;
   gap: 15px;
