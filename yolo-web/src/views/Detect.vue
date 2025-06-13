@@ -503,7 +503,7 @@ const pollResultsCamera = () => {
         }));
       }
     } catch (error) {
-      console.error("轮询失败:", error);
+      console.error("Polling failed:", error);
       resultImageUrl.value = null;
     }
   }, 500); // 500ms request once
@@ -539,43 +539,43 @@ const downloadImage = async () => {
   }
 
   try {
-    // 1. 拉取图片资源
+    // Pull image resources
     const res = await fetch(resultImageUrl.value);
     if (!res.ok) throw new Error(`网络错误：${res.status}`);
-    // 2. 转为二进制 Blob
+    // Convert to binary Blob
     const blob = await res.blob();
-    // 3. 生成临时 object URL
+    // Generating a temporary object URL
     const url = URL.createObjectURL(blob);
 
-    // 4. 创建 <a> 并触发下载
+    // Create an <a> and trigger a download
     const a = document.createElement('a');
     a.href = url;
-    // 提取文件名
+    // Extract file name
     const segments = resultImageUrl.value.split('/');
     a.download = segments[segments.length - 1];
     document.body.appendChild(a);
     a.click();
     a.remove();
 
-    // 5. 释放 URL
+    // Release URL
     URL.revokeObjectURL(url);
 
-    ElMessage.success('下载已开始');
+    ElMessage.success('Download started');
   } catch (err) {
     console.error(err);
-    ElMessage.error('下载失败，请重试');
+    ElMessage.error('Download failed, please try again');
   }
 };
 
 
 const downloadCSV = () => {
   if (tableData.value.length === 0) {
-    return ElMessage.warning("当前没有检测结果");
+    return ElMessage.warning("There are currently no test results");
   }
 
-  // 表头
+  // Header
   const headers = ["ID", "Class", "Confidence", "BBox"];
-  // 每行的数据
+  // Data for each row
   const rows = tableData.value.map(item => [
     item.id,
     item.class_name,
@@ -583,16 +583,16 @@ const downloadCSV = () => {
     item.bbox,
   ]);
 
-  // 拼 CSV 文本
+  // Scrape CSV text
   let csv = headers.join(",") + "\n"
           + rows.map(r => r.map(cell => `"${cell}"`).join(",")).join("\n");
 
-  // 构造下载
+  // Construction Download
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  // 可以自定义文件名
+  // Customize the file name
   a.download = `detections_${Date.now()}.csv`;
   document.body.appendChild(a);
   a.click();

@@ -10,35 +10,35 @@ import {useLoginUserStore} from "@/store/useLoginUserStore";
 const routes = [
     {
         path: '/',
-        redirect: '/hello'  // 当访问根路径时，重定向到 /hello
+        redirect: '/hello'  // When accessing the root path, redirect to /hello
     },
 
     {
         path: '/detect',
         name: 'Detect',
-        component: Detect, // 实际的组件
-        meta: { requiresAuth: true }, // 需要登录
+        component: Detect, // The actual components
+        meta: { requiresAuth: true }, // Login required
     },
     {
         path: '/hello',
         name: 'HelloWorld',
-        component: HelloWorld // 实际的组件
+        component: HelloWorld // The actual components
     },
     {
         path: '/login',
         name: 'login',
-        component: Login // 实际的组件
+        component: Login // The actual components
     },
     {
         path: '/register',
         name: 'register',
-        component: Register // 实际的组件
+        component: Register // The actual components
     },
     {
         path: '/user/center',
         name: 'UserCenter',
         component: UserCenter,
-        meta: { requiresAuth: true }, // 需要登录
+        meta: { requiresAuth: true }, // Login required
         redirect: '/user/center/info/:id',
         children: [
             {
@@ -60,7 +60,7 @@ const routes = [
     {
         path: '/about',
         name: 'about',
-        component: About // 实际的组件
+        component: About // The actual components
     },
 
 ];

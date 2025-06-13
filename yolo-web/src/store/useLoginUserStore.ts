@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import {computed, ref} from "vue";
 
-// 定义用户信息
+// Define user information
 interface User {
     nick_name: string;
     account: string;
@@ -16,27 +16,27 @@ interface User {
 
 
 export const useLoginUserStore = defineStore('LoginUserStore', () => {
-    // const loginUser = ref<User | null>(null);  // 默认为 null，表示未登录
-    const loginUser = ref();  // 默认为 null，表示未登录
+    // const loginUser = ref<User | null>(null);  // The default value is null, indicating that the user is not logged in.
+    const loginUser = ref();  // The default value is null, indicating that the user is not logged in.
 
-    // 刷新页面的话用户依然存在
+    // If you refresh the page, the user still exists
     if (localStorage.getItem('user')) {
         loginUser.value = JSON.parse(localStorage.getItem('user')!);
     }
 
-    // 判断是否登录的 getter
+    // Getter to determine whether to log in
     const isLoggedIn = computed(() => !!loginUser.value);
 
-    // 设置用户信息
+    // Set user information
     function setLoginUser(user: User) {
         loginUser.value = user;
-        localStorage.setItem('user', JSON.stringify(user)); // 更新到本地存储
+        localStorage.setItem('user', JSON.stringify(user)); // Update to local storage
     }
 
-    // 退出账号
+    // Log out
     function clearLoginUser() {
         loginUser.value = null;
-        localStorage.removeItem('user');  // 清除本地存储中的用户信息
+        localStorage.removeItem('user');  // Clear user information in local storage
     }
 
     return { loginUser,isLoggedIn, setLoginUser, clearLoginUser };
