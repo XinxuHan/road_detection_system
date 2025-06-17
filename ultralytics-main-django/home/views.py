@@ -246,12 +246,43 @@ def analyze_llm_view(request):
             return JsonResponse({"success": False, "error": "Detection data is empty"})
 
         # 构造 prompt 内容
-        prompt_lines = []
+        # prompt_lines = []
+        #
+        # for result in detections:
+        #     class_name = result.get("class_name", "未知")
+        #     confidence = result.get("confidence", 0)
+        #
+        #     bbox_raw = result.get("bbox")
+        #     if isinstance(bbox_raw, str):
+        #         bbox = parse_bbox(bbox_raw)
+        #     elif isinstance(bbox_raw, dict):
+        #         bbox = bbox_raw
+        #     else:
+        #         bbox = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
+        #
+        #     prompt_lines.append(
+        #         f"目标 {result.get('id', '?')} 是 {class_name}，置信度为 {confidence}%，"
+        #         f"位于左上角({bbox['x1']}, {bbox['y1']}) 到右下角({bbox['x2']}, {bbox['y2']}) 的区域。"
+        #     )
+        #
+        # prompt_context = "\n".join(prompt_lines)
+        # prompt_task = {
+        #     "summary": "请总结图像中的主要目标及其位置和置信度。",
+        #     "risk_analysis": "请评估图像中的风险目标，判断是否存在安全隐患。",
+        #     "road_guidance": "请基于检测结果给出合理的通行建议或路径引导。"
+        # }.get(task, "请分析以下目标信息：")
+        #
+        # final_prompt = f"{prompt_task}\n\n检测结果如下：\n{prompt_context}"
+
+        # 构造 Markdown 表格形式的 prompt（更适合 LLM 理解空间结构）
+        table_lines = [
+            "| ID | 类别 | 置信度 | 左上角坐标 | 右下角坐标 |",
+            "|----|------|--------|----------------|----------------|"
+        ]
 
         for result in detections:
             class_name = result.get("class_name", "未知")
-            confidence = result.get("confidence", 0)
-
+            confidence = result.get("confidence", "0")
             bbox_raw = result.get("bbox")
             if isinstance(bbox_raw, str):
                 bbox = parse_bbox(bbox_raw)
@@ -260,25 +291,42 @@ def analyze_llm_view(request):
             else:
                 bbox = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
 
-            prompt_lines.append(
-                f"目标 {result.get('id', '?')} 是 {class_name}，置信度为 {confidence}%，"
-                f"位于左上角({bbox['x1']}, {bbox['y1']}) 到右下角({bbox['x2']}, {bbox['y2']}) 的区域。"
+            table_lines.append(
+                f"| {result.get('id', '?')} | {class_name} | {confidence}% | "
+                f"({bbox['x1']}, {bbox['y1']}) | ({bbox['x2']}, {bbox['y2']}) |"
             )
 
-        prompt_context = "\n".join(prompt_lines)
-        prompt_task = {
-            "summary": "请总结图像中的主要目标及其位置和置信度。",
-            "risk_analysis": "请评估图像中的风险目标，判断是否存在安全隐患。",
-            "road_guidance": "请基于检测结果给出合理的通行建议或路径引导。"
-        }.get(task, "请分析以下目标信息：")
+        prompt_context = "\n".join(table_lines)
 
-        final_prompt = f"{prompt_task}\n\n检测结果如下：\n{prompt_context}"
+        # 加强任务指令，引导 LLM 输出结构化结论
+        prompt_task = {
+            "summary": (
+                "请根据以下检测结果，概括图像中存在的主要目标，指出它们的分布位置和数量，"
+                "以及可能的场景类型（如停车场、道路拥堵、街道等）。"
+            ),
+            "risk_analysis": (
+                "请从检测结果中分析是否存在潜在安全风险，例如视野遮挡、异常靠近边缘、密集分布等，"
+                "并根据目标位置和类别评估风险等级与原因。"
+            ),
+            "road_guidance": (
+                "请结合目标的位置、类别和分布情况，为当前场景提供合理的通行建议或避让策略。"
+                "指出可通行区域、建议避让的高密度或危险区域，并说明依据。"
+            )
+        }.get(task, "请分析以下检测结果，给出你的专业判断。")
+
+        final_prompt = (
+            "你是一位道路图像分析专家，擅长结合目标检测结果评估交通状况、安全风险以及通行建议。\n\n"
+            f"{prompt_task}\n\n"
+            f"以下是检测到的目标信息（结构化表示）：\n{prompt_context}"
+        )
+
 
         # 调用 LLM API（非流式）
         completion = client.chat.completions.create(
             model="Meta-Llama-3.1-405B-Instruct",
             messages=[
-                {"role": "system", "content": "你是一个图像理解分析助手，请结合目标类别、置信度和位置信息给出专业分析。"},
+                {"role": "system", "content": ("你是一位经验丰富的交通图像分析专家, 擅长根据车辆等目标的类别, 置信度和空间位置." 
+                                               "判断道路风险, 交通密度和合理通行路径. 请依据结构化输入信息, 给出逻辑严谨, 表达清晰, 结论明确的分析建议.")},
                 {"role": "user", "content": final_prompt}
             ],
             stream=False
