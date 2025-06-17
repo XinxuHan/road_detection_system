@@ -7,6 +7,8 @@ from django.core.files.storage import FileSystemStorage, default_storage
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from openai import OpenAI
+
 from home.predict_img import detect
 from home.predict_video_stream import process_video, frame_storage, process_camera
 
@@ -204,3 +206,89 @@ def set_confidence_view(request):
     return JsonResponse({"success": False, "error": "无效请求方法"}, status=405)
 
 
+
+
+import re
+
+client = OpenAI(base_url="https://api.sambanova.ai/v1", api_key="c7ebcdfd-d744-4069-b4f0-485e96c86a58")
+
+
+def parse_bbox(bbox):
+    """
+    将 "(x1, y1), (x2, y2)" 字符串解析为 dict。
+    """
+    try:
+        matches = re.findall(r"\((\d+),\s*(\d+)\)", bbox)
+        if len(matches) == 2:
+            (x1, y1), (x2, y2) = matches
+            return {
+                "x1": int(x1),
+                "y1": int(y1),
+                "x2": int(x2),
+                "y2": int(y2)
+            }
+    except Exception as e:
+        print("⚠️ bbox 解析失败:", e)
+    return {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
+
+
+@csrf_exempt
+def analyze_llm_view(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "仅支持 POST 请求"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        detections = data.get("results", [])
+        task = data.get("task", "summary")
+
+        if not detections:
+            return JsonResponse({"success": False, "error": "Detection data is empty"})
+
+        # 构造 prompt 内容
+        prompt_lines = []
+
+        for result in detections:
+            class_name = result.get("class_name", "未知")
+            confidence = result.get("confidence", 0)
+
+            bbox_raw = result.get("bbox")
+            if isinstance(bbox_raw, str):
+                bbox = parse_bbox(bbox_raw)
+            elif isinstance(bbox_raw, dict):
+                bbox = bbox_raw
+            else:
+                bbox = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
+
+            prompt_lines.append(
+                f"目标 {result.get('id', '?')} 是 {class_name}，置信度为 {confidence}%，"
+                f"位于左上角({bbox['x1']}, {bbox['y1']}) 到右下角({bbox['x2']}, {bbox['y2']}) 的区域。"
+            )
+
+        prompt_context = "\n".join(prompt_lines)
+        prompt_task = {
+            "summary": "请总结图像中的主要目标及其位置和置信度。",
+            "risk_analysis": "请评估图像中的风险目标，判断是否存在安全隐患。",
+            "road_guidance": "请基于检测结果给出合理的通行建议或路径引导。"
+        }.get(task, "请分析以下目标信息：")
+
+        final_prompt = f"{prompt_task}\n\n检测结果如下：\n{prompt_context}"
+
+        # 调用 LLM API（非流式）
+        completion = client.chat.completions.create(
+            model="Meta-Llama-3.1-405B-Instruct",
+            messages=[
+                {"role": "system", "content": "你是一个图像理解分析助手，请结合目标类别、置信度和位置信息给出专业分析。"},
+                {"role": "user", "content": final_prompt}
+            ],
+            stream=False
+        )
+
+        result_text = completion.choices[0].message.content
+        return JsonResponse({
+            "success": True,
+            "analysis": result_text
+        })
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

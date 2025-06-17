@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import re_path
 from . import consumers
+from home.views import analyze_llm_view
 
 urlpatterns = [
     path('detect/', views.detect_view, name='detect'),
@@ -15,6 +16,7 @@ urlpatterns = [
     path("api/stop_detection/", views.stop_detection, name="stop_detection"),
     path('api/start-camera', views.start_camera),  # 摄像头接口
     path("api/get-latest-frame/", views.get_latest_frame, name="get_latest_frame"),
+    path('api/analyze-llm/', views.analyze_llm_view, name='analyze_llm'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # 访问媒体文件

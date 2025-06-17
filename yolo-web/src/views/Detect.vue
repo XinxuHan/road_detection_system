@@ -1,135 +1,52 @@
 <template>
   <div id="mr-mainbody" class="container mr-mainbody">
-    <!-- First row -->
+
+    <!-- 按钮与参数调节区域 -->
     <div class="control-panel">
-      <el-select v-model="value" placeholder="Default Model" style="width: 1500px" size="large" @change="handleModelChange">
-        <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value" />
-      </el-select>
-
-      <el-button type="primary" style="width: 130px; height: 40px;" @click="triggerFileInput">
-        Select image
-      </el-button>
-
-      <el-button
-          type="primary"
-          style="width:130px; height: 40px;"
-          @click="triggerVideoInput">
-        Select Video
-      </el-button>
-
-      <el-button
-          type="primary"
-          style="width:130px; height: 40px;"
-          @click="showCameraDialog"
-      >
-        Camera detection
-      </el-button>
-
-      <!-- Camera selection dialog -->
-      <el-dialog
-          v-model="cameraDialogVisible"
-          title="Select Camera"
-          width="30%"
-          @closed="resetCameraSelection"
-      >
-        <el-select
-            v-model="selectedCamera"
-            placeholder="Please select a camera device"
-            @change="onCameraChange"
-        >
-          <el-option
-              v-for="(camera, index) in cameraList"
-              :key="index"
-              :label="`Camera ${index} (${camera.label})`"
-              :value="index"
-          />
-
+      <!-- 第一行按钮 -->
+      <div class="control-row">
+        <el-select v-model="value" placeholder="Default Model" style="width: 300px" size="large" @change="handleModelChange">
+          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
-      </el-dialog>
 
+        <el-button type="primary" @click="triggerFileInput">Select Image</el-button>
+        <el-button type="primary" @click="triggerVideoInput">Select Video</el-button>
+        <el-button type="primary" @click="showCameraDialog">Camera Detection</el-button>
+      </div>
 
+      <!-- 第二行参数和控制按钮 -->
+      <div class="control-row">
+        <span class="confidence-label">Confidence:</span>
+        <el-slider style="width: 160px" v-model="conf_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('confidence')" />
 
+        <span class="confidence-label">IoU:</span>
+        <el-slider style="width: 160px" v-model="iou_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('iou')" />
 
+        <el-button :type="loading ? 'info' : 'primary'" :loading="loading" @click="uploadAndStyleTransfer" :disabled="loading">
+          {{ loading ? 'Detecting...' : 'Start Detecting' }}
+        </el-button>
 
-
-      <span class="confidence-label">Confidence:</span>
-      <el-slider style="width: 50%" v-model="conf_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('confidence')" />
-      <span>IoU：</span>
-      <el-slider style="width: 50%" v-model="iou_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('iou')" />
-
-      <!--      <el-button class="fixed-btn" :type="loading ? 'info' : 'primary'" :loading="loading" @click="uploadAndStyleTransfer" :disabled="loading" style="width: 130px; height: 40px;">-->
-      <!--        {{ loading ? 'Uploading...' : 'Start detection' }}-->
-      <!--      </el-button>-->
-
-      <el-button
-          class="fixed-btn"
-          :type="loading ? 'info' : 'primary'"
-          :loading="loading"
-          @click="uploadAndStyleTransfer"
-          :disabled="loading"
-          style="width: 130px; height: 40px;">
-        {{ loading ? 'Detecting...' : 'Start detecting' }}
-      </el-button>
-
-
-      <el-button type="primary" style="width: 150px; height: 40px;" @click="stopDetection">
-        End video detection
-      </el-button>
-
-      <el-button type="success" style="width: 130px; height: 40px;" :disabled="!resultImageUrl" @click="downloadImage">
-        Save Image
-      </el-button>
-      <el-button type="success" style="width: 130px; height: 40px;" :disabled="tableData.length === 0" @click="downloadCSV">
-        Save CSV
-      </el-button>
-
+        <el-button type="primary" @click="stopDetection">End Detection</el-button>
+        <el-button type="success" :disabled="!resultImageUrl" @click="downloadImage">Save Image</el-button>
+        <el-button type="success" :disabled="tableData.length === 0" @click="downloadCSV">Save CSV</el-button>
+      </div>
     </div>
 
-    <!-- Second row: Image display area-->
+    <!-- 媒体预览区域 -->
     <div class="image-container">
       <div class="imagePreview">
-        <video
-            v-if="currentMediaType === 'video' && mediaUrl"
-            :src="mediaUrl"
-            controls
-            class="preview-media">
-        </video>
-
-        <img
-            v-else-if="currentMediaType === 'image' && mediaUrl"
-            :src="mediaUrl"
-            alt="Content Media"
-            class="preview-media">
-
-        <input
-            type="file"
-            id="imageInput"
-            style="display: none;"
-            @change="handleImageUpload"
-            accept="image/*">
-
-        <input
-            type="file"
-            id="videoInput"
-            style="display: none;"
-            @change="handleVideoUpload"
-            accept="video/*">
-
-
+        <video v-if="currentMediaType === 'video' && mediaUrl" :src="mediaUrl" controls class="preview-media" />
+        <img v-else-if="currentMediaType === 'image' && mediaUrl" :src="mediaUrl" alt="Content Media" class="preview-media" />
+        <input type="file" id="imageInput" style="display: none;" @change="handleImageUpload" accept="image/*" />
+        <input type="file" id="videoInput" style="display: none;" @change="handleVideoUpload" accept="video/*" />
       </div>
 
-
-
       <div class="imagePreview">
-        <img v-if="resultImageUrl" :src="resultImageUrl" class="preview-media"  >
+        <img v-if="resultImageUrl" :src="resultImageUrl" class="preview-media" />
       </div>
     </div>
 
-    <!-- Form -->
+    <!-- 检测结果表格 -->
     <div class="content-table">
       <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
         <el-table-column prop="id" label="ID" width="180" />
@@ -137,9 +54,32 @@
         <el-table-column prop="conf" label="Confidence" width="180" />
         <el-table-column prop="bbox" label="BBox" />
       </el-table>
+
+      <!-- LLM 分析结果 -->
+      <div class="llm-analysis-section" style="margin-top: 30px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+          <span style="font-weight: bold; font-size: 15px;">🔍 选择分析任务：</span>
+          <el-select v-model="selectedLlmTask" placeholder="请选择分析类型" style="width: 300px;">
+            <el-option v-for="item in llmTaskOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+
+        <div style="border: 1px solid #ccc; border-radius: 6px; padding: 8px;">
+          <el-input
+              type="textarea"
+              v-model="llmResult"
+              placeholder="LLM 分析结果将显示在此处"
+              autosize
+              readonly
+              style="width: 100%; font-family: monospace;"
+          />
+        </div>
+
+      </div>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import {ref, watch} from 'vue';
@@ -225,6 +165,52 @@ const startCameraDetection = async (deviceIndex: number) => {
     loading.value = false;
   }
 };
+
+
+// LLM 分析相关
+const selectedLlmTask = ref("summary");
+const llmResult = ref("");
+
+const llmTaskOptions = [
+  { value: "summary", label: "目标总结（Summary）" },
+  { value: "risk_analysis", label: "风险评估（Risk Analysis）" },
+  { value: "road_guidance", label: "通行建议（Road Guidance）" },
+];
+
+// 调用后端分析接口
+const analyzeWithLLM = async () => {
+  if (tableData.value.length === 0) {
+    llmResult.value = "⚠️ 当前无检测目标，无法分析。";
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8000/api/analyze-llm/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        results: tableData.value.map(item => ({
+          id: item.id,
+          class_name: item.class_name,
+          confidence: parseFloat(item.conf.replace("%", "")),
+          bbox: item.bbox,
+        })),
+        task: selectedLlmTask.value,
+      }),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      llmResult.value = result.analysis;
+    } else {
+      llmResult.value = "❌ 分析失败：" + result.error;
+    }
+  } catch (e) {
+    llmResult.value = "❌ 分析请求失败：" + e;
+    console.error("LLM分析异常:", e);
+  }
+};
+
 
 
 
@@ -400,6 +386,10 @@ const uploadAndStyleTransfer = async () => {
           conf: item.confidence + "%",
           bbox: `(${item.bbox.x1}, ${item.bbox.y1}), (${item.bbox.x2}, ${item.bbox.y2})`,
         }));
+
+        // 自动调用 LLM 分析
+        await analyzeWithLLM();
+
       } else {
         console.error("The URL to the processed image is missing from the response.");
       }
@@ -611,6 +601,63 @@ const downloadCSV = () => {
 
 
 <style scoped>
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+
+.confidence-label {
+  min-width: 70px;
+  text-align: right;
+  font-size: 14px;
+  color: #606266;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 35px;
+}
+
+.imagePreview {
+  height: 370px;
+  width: 550px;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-media {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.content-table {
+  margin-top: 40px;
+  margin-bottom: 10vh;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.llm-analysis-section textarea {
+  font-family: monospace;
+  line-height: 1.5;
+}
 
 
 .control-panel {
