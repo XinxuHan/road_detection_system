@@ -10,9 +10,9 @@
     <div class="nav-container">
       <nav class="nav-menu" v-show="!menuVisibleOnMobile">
         <RouterLink to="/hello" active-class="router-link-active">HOME</RouterLink>
-        <RouterLink to="/detect" active-class="router-link-active">Detection</RouterLink>
-        <RouterLink to="/user/center" active-class="router-link-active">My profile</RouterLink>
-        <RouterLink to="/about" active-class="router-link-active">About</RouterLink>
+        <RouterLink to="/detect" active-class="router-link-active">DETECTION</RouterLink>
+        <RouterLink to="/user/center" active-class="router-link-active">MY PROFILE</RouterLink>
+        <RouterLink to="/about" active-class="router-link-active">ABOUT</RouterLink>
       </nav>
     </div>
 
