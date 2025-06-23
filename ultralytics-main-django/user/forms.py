@@ -1,138 +1,125 @@
-import re
-
 from django import forms
 from django.core.exceptions import ValidationError
+import re
 from .models import UserProfile
 
 class RegisterForm(forms.Form):
     account = forms.CharField(
-        max_length=50,
         min_length=1,
+        max_length=50,
         error_messages={
-            "required": "账号不能为空！",
-            "min_length": "账号长度必须在1到11位之间",
-            "max_length": "账号长度必须在1到11位之间",
+            "required": "The account cannot be empty!",
+            "min_length": "The account length must be between 1 and 11 characters",
+            "max_length": "The account length must be between 1 and 11 characters",
         }
     )
     phone = forms.CharField(
-        label="联系电话 ：",
+        label="Contact number:",
         widget=forms.TextInput(attrs={
-            "placeholder": "请输入联系电话！",
-            "size": "38",
+            "placeholder": "Please enter your contact number!",
+            "size": 38,
         }),
-        error_messages={
-            "required": "手机号不能为空！",
-        }
+        error_messages={"required": "The mobile phone number cannot be empty!"}
     )
     email = forms.EmailField(
-        label="邮箱 ：",
+        label="Email:",
         widget=forms.EmailInput(attrs={
-            "placeholder": "请输入邮箱！",
-            "size": "38",
+            "placeholder": "Please enter your email address!",
+            "size": 38,
         }),
         error_messages={
-            "required": "邮箱不能为空！",
-            "invalid": "邮箱格式不正确！",
+            "required": "The mailbox cannot be empty!",
+            "invalid": "The email format is incorrect!",
         }
     )
     password = forms.CharField(
-        label="密码 ：",
+        label="Password:",
+        min_length=6,
+        max_length=50,
         widget=forms.PasswordInput(attrs={
-            "placeholder": "请输入密码！",
-            "size": "38",
+            "placeholder": "Please enter the password!",
+            "size": 38,
         }),
         error_messages={
-            "required": "密码不能为空！",
+            "required": "The password cannot be empty!",
+            "min_length": "The password must be at least 6 characters long.",
+            "max_length": "The password must not exceed 50 characters."
         }
     )
     checkPassword = forms.CharField(
-        label="确认密码 ：",
+        label="Confirmation password:",
+        min_length=6,
+        max_length=50,
         widget=forms.PasswordInput(attrs={
-            "placeholder": "请输入确认密码！",
-            "size": "38",
+            "placeholder": "Please enter the confirmation password!",
+            "size": 38,
         }),
         error_messages={
-            "required": "请输入确认密码！",
+            "required": "Please enter the confirmation password!",
+            "min_length": "The confirmation password must be at least 6 characters long.",
+            "max_length": "The confirmation password must not exceed 50 characters."
         }
     )
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        checkPassword = cleaned_data.get("checkPassword")
-
-        if password and checkPassword and password != checkPassword:
-            raise ValidationError("两次密码不一致！")
-
+        pw, cpw = cleaned_data.get("password"), cleaned_data.get("checkPassword")
+        if pw and cpw and pw != cpw:
+            raise ValidationError("The passwords entered twice are inconsistent!")
         return cleaned_data
+
+    def clean_account(self):
+        account = self.cleaned_data.get("account")
+        if not re.match(r'^[a-zA-Z0-9_]+$', account):
+            raise ValidationError("The account can only contain letters, numbers and underscores, and cannot contain Chinese characters.")
+        if UserProfile.objects.filter(account=account).exists():
+            raise ValidationError("The account already exists!")
+        return account
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
         if UserProfile.objects.filter(email=email).exists():
-            raise ValidationError("邮箱已经存在！")
+            raise ValidationError("The email address already exists!")
         return email
 
     def clean_phone(self):
         phone = self.cleaned_data.get("phone")
         if UserProfile.objects.filter(phone=phone).exists():
-            raise ValidationError("手机号已经存在！")
+            raise ValidationError("The mobile phone number already exists!")
         return phone
 
 
-    def clean_account(self):
-        """
-        检查账号是否已经存在，并验证账号格式
-        """
-        account = self.cleaned_data.get("account")
-
-        # 验证账号格式：只能包含字母、数字和下划线，且不允许包含中文字符
-        account_regex = re.compile(r'^[a-zA-Z0-9_]+$')
-        if not account_regex.match(account):
-            raise ValidationError("账号只能包含字母、数字和下划线，且不能包含中文字符")
-
-        # 检查账号是否已经存在
-        if UserProfile.objects.filter(account=account).exists():
-            raise ValidationError("账号已存在！")
-
-        return account
-
-
-
-
 class LoginForm(forms.Form):
-    """
-    登录功能
-    """
     nick_name = forms.CharField(
-        label="用户名",
-        max_length=50,
+        label="User name",
         min_length=3,
+        max_length=50,
         widget=forms.TextInput(attrs={
-            "placeholder": "请输入用户名！",
+            "placeholder": "Please enter the username!",
             "class": "validate-username",
             "size": 38,
             "maxlength": 99
         }),
         error_messages={
-            "required": "用户名不能为空！",
-            "max_length": "用户名长度必须在3到10位之间"
+            "required": "The username cannot be empty!",
+            "min_length": "The length of the username must be between 3 and 10 characters.",
+            "max_length": "The length of the username must be between 3 and 10 characters."
         }
     )
 
     password = forms.CharField(
-        label="密码",
+        label="Password",
+        min_length=6,
         max_length=99,
         widget=forms.PasswordInput(attrs={
-            "placeholder": "请输入密码！",
+            "placeholder": "Please enter the password!",
             "class": "validate-password",
             "size": 38,
             "maxlength": 99
         }),
         error_messages={
-            "required": "密码不能为空！",
-            "max_length": "密码长度不少于6位"
+            "required": "The password cannot be empty!",
+            "min_length": "The password must be at least 6 characters long.",
+            "max_length": "The password must not exceed 50 characters."
         }
     )
-
-
-

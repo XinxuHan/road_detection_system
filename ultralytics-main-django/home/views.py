@@ -7,10 +7,12 @@ from django.core.files.storage import FileSystemStorage, default_storage
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from openai import OpenAI
-
 from home.predict_img import detect
 from home.predict_video_stream import process_video, frame_storage, process_camera
+
+from openai import OpenAI
+
+
 
 @csrf_exempt
 def detect_view(request):

@@ -1,41 +1,41 @@
-import asyncio
-
 import cv2
-import threading
-import os
+import asyncio
 import base64
+import threading
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.apps import apps
 
-class VideoStreamConsumer(AsyncWebsocketConsumer):
+class StreamHandler(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, code):
+        # No cleanup needed for now
         pass
 
-    async def send_frame(self, frame):
-        _, buffer = cv2.imencode(".jpg", frame)
-        frame_base64 = base64.b64encode(buffer).decode("utf-8")
-        await self.send(text_data=f"data:image/jpeg;base64,{frame_base64}")
+    async def transmit_frame(self, image):
+        success, encoded = cv2.imencode(".jpg", image)
+        if success:
+            payload = base64.b64encode(encoded).decode("utf-8")
+            await self.send(text_data=f"data:image/jpeg;base64,{payload}")
 
-    def process_video(self, video_path):
-        home_app_config = apps.get_app_config('home')
-        yolo_predict = home_app_config.yolo_predict
-        cap = cv2.VideoCapture(video_path)
+    def _video_pipeline(self, path):
+        app_conf = apps.get_app_config('home')
+        yolo = app_conf.yolo_predict
+        capture = cv2.VideoCapture(path)
 
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
+        while capture.isOpened():
+            success, frame = capture.read()
+            if not success:
                 break
 
-            results = yolo_predict.model.track(frame)[0]
-            processed_frame = results.plot()
+            result = yolo.model.track(frame)[0]
+            output = result.plot()
 
-            # 发送处理后帧
-            asyncio.run(self.send_frame(processed_frame))
+            asyncio.run(self.transmit_frame(output))
 
-        cap.release()
+        capture.release()
 
-    async def start_processing(self, video_path):
-        threading.Thread(target=self.process_video, args=(video_path,)).start()
+    async def start_processing(self, path):
+        thread = threading.Thread(target=self._video_pipeline, args=(path,))
+        thread.start()
