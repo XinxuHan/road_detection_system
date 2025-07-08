@@ -1,20 +1,24 @@
-import os
+from pathlib import Path
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Define the project root directory (two levels of directories upward)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+# =============================================================================
+# Basic Settings
+# =============================================================================
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'wtekqif%c&zz92ek3iiea(iv^mk=5dt@+q003pkg&*b_$b__z!'
+# Security key, please keep it strictly confidential in the production environment!
+SECRET_KEY = 'nzv30$zrxmh_j#hs@4=qr=b91i&ytz&1)%a8b6%7unyd8m@hec'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Whether to enable the debugging mode (please turn it off in the production environment)
 DEBUG = True
 
+# The host that is allowed for access
 ALLOWED_HOSTS = []
 
+# =============================================================================
 # Application definition
+# =============================================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,7 +48,8 @@ ROOT_URLCONF = 'YOLOv11.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # 模板路径
+        # Specifying the template pat
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,20 +64,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'YOLOv11.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+# =============================================================================
+# Database Configuration
+# =============================================================================
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'yolo_django',
         'USER': 'root',
-        'PASSWORD': 'Yiyi20426@',
+        'PASSWORD': 'Yiyi20426@',  # Use your own password
     }
 }
 
+# =============================================================================
 # Password validation
-# https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
+# =============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -91,43 +98,77 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOGIN_URL = '/login/'
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.0/topics/i18n/
-LANGUAGE_CODE = 'zh-hans'
+# =============================================================================
+# Internationalization configuration
+# =============================================================================
 
-TIME_ZONE = 'Asia/Shanghai'
+LANGUAGE_CODE = 'en-hk'  # English (Hong Kong)
+
+TIME_ZONE = 'Asia/Hong_Kong'  # Hong Kong Time Zone
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
 
+# =============================================================================
+# Static file configuration
+# =============================================================================
+
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
-
-
-MEDIA_URL = '/media/'  # 用于前端访问
-MEDIA_ROOT = os.path.join(BASE_DIR, 'home', 'media')  # home应用中的media目录
-SAVEMODEL_ROOT = os.path.join(BASE_DIR,'home','save_models')
-USER_AVATAR_ROOT = os.path.join(BASE_DIR, 'user', 'media', 'avatar')  # 用户头像
-
-
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vue3 项目的请求
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
 ]
 
+# =============================================================================
+# Media File Configuration
+# =============================================================================
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'home' / 'media'  # The media directory in the home app
+SAVEMODEL_ROOT = BASE_DIR / 'home' / 'save_models'
+USER_AVATAR_ROOT = BASE_DIR / 'user' / 'media' / 'avatar'  # User avatar storage path
+
+# =============================================================================
+# CORS configuration
+# =============================================================================
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Request source for Vue3 project
+]
 
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
     'OPTIONS',
 ]
-CORS_ALLOW_CREDENTIALS = True  # 允许带有凭证的请求
 
-CSRF_COOKIE_SECURE = False  # 开发环境下，允许未启用 HTTPS 的请求
-CORS_ORIGIN_ALLOW_ALL = True  # 如果不希望限制所有域名可以设置特定域名
+CORS_ALLOW_CREDENTIALS = True  # Vouchers allowed
 
+# =============================================================================
+# CSRF configuration
+# =============================================================================
+
+CSRF_COOKIE_SECURE = False  # The development environment allows non-HTTPS requests
+
+# If you don't want to restrict the domain, you can let go of all cross-domain requests
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
+}

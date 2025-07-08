@@ -58,17 +58,25 @@
       <!-- LLM 分析结果 -->
       <div class="llm-analysis-section" style="margin-top: 30px;">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-          <span style="font-weight: bold; font-size: 15px;">🔍 选择分析任务：</span>
-          <el-select v-model="selectedLlmTask" placeholder="请选择分析类型" style="width: 300px;">
+          <span style="font-weight: bold; font-size: 15px;">🔍 Select the prompt engineering method:</span>
+          <el-select v-model="selectedLlmTask" placeholder="Select the prompt method" style="width: 300px;">
             <el-option v-for="item in llmTaskOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+          <span style="font-weight: bold; font-size: 15px;">🤖 Select the large language model:</span>
+          <el-select v-model="selectedLlmModel" placeholder="Select the large language model" style="width: 300px;">
+            <el-option v-for="item in llmModelOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+
 
         <div style="border: 1px solid #ccc; border-radius: 6px; padding: 8px;">
           <el-input
               type="textarea"
               v-model="llmResult"
-              placeholder="LLM 分析结果将显示在此处"
+              placeholder="The LLM analysis results will be displayed here"
               autosize
               readonly
               style="width: 100%; font-family: monospace;"
@@ -168,13 +176,13 @@ const startCameraDetection = async (deviceIndex: number) => {
 
 
 // LLM 分析相关
-const selectedLlmTask = ref("summary");
+const selectedLlmTask = ref("zero_shot");
 const llmResult = ref("");
 
 const llmTaskOptions = [
-  { value: "summary", label: "目标总结（Summary）" },
-  { value: "risk_analysis", label: "风险评估（Risk Analysis）" },
-  { value: "road_guidance", label: "通行建议（Road Guidance）" },
+  { value: "zero_shot", label: "Zero-Shot Prompting" },
+  { value: "cot", label: "Chain-of-Thought (CoT) Prompting" },
+  { value: "few_shot", label: "Few-Shot Prompting" },
 ];
 
 // 调用后端分析接口
@@ -196,6 +204,7 @@ const analyzeWithLLM = async () => {
           bbox: item.bbox,
         })),
         task: selectedLlmTask.value,
+        llm_model: selectedLlmModel.value,
       }),
     });
 
@@ -212,22 +221,45 @@ const analyzeWithLLM = async () => {
 };
 
 
+const selectedLlmModel = ref("Llama-4-Maverick-17B-128E-Instruct");
+
+const llmModelOptions = [
+  { value: "Meta-Llama-3.1-405B-Instruct", label: "Meta-Llama-3.1-405B-Instruct" },
+  { value: "Meta-Llama-3.1-8B-Instruct", label: "Meta-Llama-3.1-8B-Instruct" },
+  { value: "Llama-4-Maverick-17B-128E-Instruct", label: "Llama-4-Maverick-17B-128E-Instruct" },
+  { value: "Qwen3-32B", label: "Qwen3-32B" },
+  { value: "DeepSeek-R1-0528", label: "DeepSeek-R1-0528" }
+];
+
+
 
 
 const value = ref('')
 
 const options = [
   {
-    value: 'yolo11n.pt',
-    label: 'yolo11n.pt',
+    value: 'yolo8-best.pt',
+    label: 'yolo8-best.pt',
   },
   {
-    value: 'yolo11n-pose.pt',
-    label: 'yolo11n-pose.pt',
+    value: 'yolo11-best.pt',
+    label: 'yolo11-best.pt',
+  },
+  {
+    value: 'yolo11.pt',
+    label: 'yolo11.pt',
   },
   {
     value: 'yolo11n-seg.pt',
     label: 'yolo11n-seg.pt',
+  },
+  {
+    value: 'best.pt',
+    label: 'best.pt',
+  },
+  {
+    value: 'last.pt',
+    label: 'last.pt',
   },
 ]
 

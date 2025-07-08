@@ -10,9 +10,7 @@ from django.http import JsonResponse
 
 @api_view(['POST'])
 def login_view(request):
-    """
-    用户登录视图
-    """
+
     data = request.data
     account = data.get('account')
     password = data.get('password')
@@ -50,9 +48,7 @@ def login_view(request):
 
 @api_view(['POST'])
 def register_view(request):
-    """
-    用户注册视图
-    """
+
     form = RegisterForm(request.data)
 
     if not form.is_valid():
@@ -82,9 +78,7 @@ def register_view(request):
 
 @csrf_exempt
 def update_user_view(request):
-    """
-    用户信息更新接口
-    """
+
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
@@ -125,10 +119,8 @@ def update_user_view(request):
 
 @csrf_exempt
 @api_view(['POST'])
-def upload_avatar(request):
-    """
-    用户上传头像
-    """
+def upload_avatar_view(request):
+
     avatar_file = request.FILES.get('avatar')
     if not avatar_file:
         return JsonResponse({"error": "未上传头像"}, status=400)
@@ -158,10 +150,8 @@ def upload_avatar(request):
 
 
 @api_view(['POST'])
-def change_password(request):
-    """
-    修改密码接口
-    """
+def change_password_view(request):
+
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:

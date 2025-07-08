@@ -3,7 +3,7 @@
     <!-- Logo + Title -->
     <div class="logo">
       <img class="logo-img" src="@/assets/logo.svg" alt="logo" />
-      <div class="title">Recognition system based on YOLOv11</div>
+      <div class="title">Recognition system based on YOLOv8 and v11</div>
     </div>
 
     <!-- The navigation menu is centered in the container -->

@@ -1,21 +1,27 @@
 import json
 import os
 import threading
+import re
+import time
+
 from django.apps import apps
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage, default_storage
-from django.http import JsonResponse, FileResponse
+from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from home.predict_img import detect
-from home.predict_video_stream import process_video, frame_storage, process_camera
+from home.detectors.image_detect import detect
+from home.detectors.video_detect import process_video
+from home.detectors.camera_detect import process_camera
+from home.frame_state import frame_storage
 
 from openai import OpenAI
 
 
 
+
 @csrf_exempt
-def detect_view(request):
+def recognition_view(request):
     if request.method == 'POST':
         input_image = request.FILES.get('content_image')
         if input_image:
@@ -43,7 +49,7 @@ def detect_view(request):
 
 
 @csrf_exempt
-def upload_video(request):
+def upload_video_view(request):
     if request.method == "POST":
         video_file = request.FILES.get("video")
         if not video_file:
@@ -63,7 +69,7 @@ def upload_video(request):
 
 
 @csrf_exempt
-def start_camera(request):
+def start_camera_view(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -72,7 +78,7 @@ def start_camera(request):
             # 停止正在进行的检测
             with frame_storage["lock"]:
                 if frame_storage["processing"]:
-                    frame_storage["abort"] = True
+                    frame_storage["stop"] = True
 
             # 启动摄像头检测线程
             thread = threading.Thread(target=process_camera, args=(camera_index,))
@@ -91,7 +97,7 @@ def start_camera(request):
 
 
 
-def get_frame(request):
+def get_frame_view(request):
     with frame_storage["lock"]:
         current_frame = frame_storage["latest_frame"]
         current_id = frame_storage["frame_id"]
@@ -120,7 +126,7 @@ def get_frame(request):
 
 
 
-def get_latest_frame(request):
+def get_latest_frame_view(request):
     with frame_storage["lock"]:
         if frame_storage["latest_frame"] is None:
             return JsonResponse({"frame": None, "detections": []})
@@ -132,10 +138,10 @@ def get_latest_frame(request):
 
 
 @csrf_exempt
-def stop_detection(request):
+def stop_recognition_view(request):
     if request.method == "POST":
         with frame_storage["lock"]:
-            frame_storage["abort"] = True  # 设置终止标志
+            frame_storage["stop"] = True  # 设置终止标志
 
             home_app_config = apps.get_app_config('home')
             yolo_predict = home_app_config.yolo_predict
@@ -210,14 +216,12 @@ def set_confidence_view(request):
 
 
 
-import re
-
 client = OpenAI(base_url="https://api.sambanova.ai/v1", api_key="c7ebcdfd-d744-4069-b4f0-485e96c86a58")
 
 
 def parse_bbox(bbox):
     """
-    将 "(x1, y1), (x2, y2)" 字符串解析为 dict。
+    Parse the strings "(x1, y1), (x2, y2)" into dict.
     """
     try:
         matches = re.findall(r"\((\d+),\s*(\d+)\)", bbox)
@@ -230,111 +234,200 @@ def parse_bbox(bbox):
                 "y2": int(y2)
             }
     except Exception as e:
-        print("⚠️ bbox 解析失败:", e)
+        print("bbox Parsing failed: ", e)
     return {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
+
 
 
 @csrf_exempt
 def analyze_llm_view(request):
     if request.method != "POST":
-        return JsonResponse({"success": False, "error": "仅支持 POST 请求"}, status=405)
+        return JsonResponse({"success": False, "error": "Only POST requests are supported"}, status=405)
 
     try:
         data = json.loads(request.body)
         detections = data.get("results", [])
-        task = data.get("task", "summary")
+        task = data.get("task", "zero_shot")
+        selected_model = data.get("llm_model", "Llama-4-Maverick-17B-128E-Instruct")  # Support model switching
+
+        # Safe filtering allows only preset models
+        available_models = [
+            "Meta-Llama-3.1-405B-Instruct",
+            "Meta-Llama-3.1-8B-Instruct",
+            "Llama-4-Maverick-17B-128E-Instruct",
+            "Qwen3-32B",
+            "DeepSeek-R1-0528"
+            # More can be added
+        ]
+        if selected_model not in available_models:
+            return JsonResponse({
+                "success": False,
+                "error": f"Unsupported model types: {selected_model}"
+            }, status=400)
 
         if not detections:
             return JsonResponse({"success": False, "error": "Detection data is empty"})
 
-        # 构造 prompt 内容
-        # prompt_lines = []
-        #
-        # for result in detections:
-        #     class_name = result.get("class_name", "未知")
-        #     confidence = result.get("confidence", 0)
-        #
-        #     bbox_raw = result.get("bbox")
-        #     if isinstance(bbox_raw, str):
-        #         bbox = parse_bbox(bbox_raw)
-        #     elif isinstance(bbox_raw, dict):
-        #         bbox = bbox_raw
-        #     else:
-        #         bbox = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
-        #
-        #     prompt_lines.append(
-        #         f"目标 {result.get('id', '?')} 是 {class_name}，置信度为 {confidence}%，"
-        #         f"位于左上角({bbox['x1']}, {bbox['y1']}) 到右下角({bbox['x2']}, {bbox['y2']}) 的区域。"
-        #     )
-        #
-        # prompt_context = "\n".join(prompt_lines)
-        # prompt_task = {
-        #     "summary": "请总结图像中的主要目标及其位置和置信度。",
-        #     "risk_analysis": "请评估图像中的风险目标，判断是否存在安全隐患。",
-        #     "road_guidance": "请基于检测结果给出合理的通行建议或路径引导。"
-        # }.get(task, "请分析以下目标信息：")
-        #
-        # final_prompt = f"{prompt_task}\n\n检测结果如下：\n{prompt_context}"
-
-        # 构造 Markdown 表格形式的 prompt（更适合 LLM 理解空间结构）
         table_lines = [
-            "| ID | 类别 | 置信度 | 左上角坐标 | 右下角坐标 |",
+            "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right corner |",
             "|----|------|--------|----------------|----------------|"
         ]
-
         for result in detections:
-            class_name = result.get("class_name", "未知")
+            class_name = result.get("class_name", "Unknown")
             confidence = result.get("confidence", "0")
             bbox_raw = result.get("bbox")
-            if isinstance(bbox_raw, str):
-                bbox = parse_bbox(bbox_raw)
-            elif isinstance(bbox_raw, dict):
-                bbox = bbox_raw
-            else:
-                bbox = {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
+            bbox = parse_bbox(bbox_raw) if isinstance(bbox_raw, str) else bbox_raw or {}
 
             table_lines.append(
                 f"| {result.get('id', '?')} | {class_name} | {confidence}% | "
-                f"({bbox['x1']}, {bbox['y1']}) | ({bbox['x2']}, {bbox['y2']}) |"
+                f"({bbox.get('x1', 0)}, {bbox.get('y1', 0)}) | ({bbox.get('x2', 0)}, {bbox.get('y2', 0)}) |"
             )
-
         prompt_context = "\n".join(table_lines)
 
-        # 加强任务指令，引导 LLM 输出结构化结论
+        print(prompt_context)
+
+        # Prompt word construction
         prompt_task = {
-            "summary": (
-                "请根据以下检测结果，概括图像中存在的主要目标，指出它们的分布位置和数量，"
-                "以及可能的场景类型（如停车场、道路拥堵、街道等）。"
+            "zero_shot": (
+                "As an expert in autonomous driving image analysis, please determine whether the current vehicle can "
+                "pass safely based on the structured detection form provided below and offer operational suggestions.\n"
+                "Each row in the table represents a detected target, and the field descriptions are as follows:\n"
+                "- Class: The semantic category of the target (e.g. car, person, traffic light, etc., from the IDD "
+                "dataset)\n"
+                "- Confidence: The probability (percentage) of recognition accuracy\n"
+                "- Coordinates: Indicate the spatial position of the target in the image (upper left corner and lower "
+                "right corner)\n\n"
+                "Please complete the following tasks strictly based on the table data:\n"
+                "1. Determine whether it is currently passable and whether there are any traffic obstructions or "
+                "potential risks.\n"
+                "2. Give clear driving advice (such as: slow down, stop and wait, give way, drive in the center, "
+                "etc.);\n"
+                "It is prohibited to fabricate categories or scenarios not listed in the table. The language should "
+                "be concise and professional.\n"
+                "You should give the Operational Suggestion directly."
             ),
-            "risk_analysis": (
-                "请从检测结果中分析是否存在潜在安全风险，例如视野遮挡、异常靠近边缘、密集分布等，"
-                "并根据目标位置和类别评估风险等级与原因。"
+
+            "cot": (
+                "Question: \n"
+                "As an expert in autonomous driving image analysis, please determine whether the current vehicle can "
+                "pass safely based on the structured detection form provided below and offer operational "
+                "suggestions.\n\n"
+                "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right "
+                "corner |\n"
+                "|----|------|--------|----------------|----------------|\n"
+                "| 1 | out of roi | 95% | (1501, 237) | (1920, 716) |\n"
+                "| 2 | border | 90% | (919, 524) | (1897, 1080) |\n"
+                "| 3 | road | 81% | (21, 496) | (1858, 1080) |\n"
+                "| 4 | sky | 77% | (0, 0) | (1859, 511) |\n"
+                "| 5 | vegetation | 72% | (50, 111) | (575, 563) |\n"
+                "| 6 | vegetation | 69% | (623, 340) | (733, 488) |\n"
+                "| 7 | border | 62% | (7, 537) | (723, 833) |\n"
+                "| 8 | vegetation | 56% | (757, 419) | (848, 495) |\n"
+                "| 9 | vegetation | 47% | (1130, 315) | (1591, 636) |\n"
+                "| 10 | fence | 47% | (855, 477) | (930, 555) |\n"
+                "| 11 | vegetation | 38% | (853, 436) | (908, 482) |\n"
+                "| 12 | vegetation | 35% | (942, 420) | (1042, 534) |\n"
+                "| 13 | vegetation | 32% | (1068, 375) | (1201, 495) |\n"
+                "| 14 | vegetation | 32% | (1066, 421) | (1263, 605) |\n"
+                "| 15 | vegetation | 31% | (722, 422) | (812, 494) |\n"
+                "| 16 | vegetation | 26% | (657, 404) | (755, 501) |\n\n"
+                "Answer: \n"
+                "【Step 1】\n"
+                "- `road` (81%) with coordinates (21, 496) to (1858, 1080), covering almost the entire lower half of "
+                "the image horizontally;\n"
+                "- Multiple `vegetation` objects (16 instances, confidence between 26% to 72%) appearing along the "
+                "left and right borders, especially concentrated from (50, 111) to (1263, 605);\n"
+                "- `border` (90%, 62%) detected on both left and right sides, likely indicating curbside or shoulder "
+                "edges;\n"
+                "- One `fence` (47%) on the right side around (855, 477) to (930, 555), suggesting physical "
+                "containment;\n"
+                "- `out of roi` (95%) object located in the far right upper region, possibly outside the usable image "
+                "space.\n\n"
+                "【Step 2】\n"
+                "Risk assessment:\n"
+                "- The road area appears clear and continuous, without major obstructions within the drivable region;\n"
+                "- Vegetation intrusions are visible on both sides of the road, especially dense on the right side, "
+                "which may slightly reduce usable lane width;\n"
+                "- No traffic lights, vehicles, or pedestrians are detected—this may limit situational awareness but "
+                "does not inherently suggest danger;\n"
+                "- Right border and fence indicate a constrained edge, and combined with vegetation may cause "
+                "right-side crowding;\n"
+                "- Sky occupies the upper half of the image, which is normal and not a risk factor.\n\n"
+                "【Step 3】\n"
+                "The current scene is generally safe for driving. The road is well-detected, unobstructed, "
+                "and wide enough for single-lane forward movement. While right-side vegetation and fence limit "
+                "lateral flexibility, the central lane appears navigable. However, the absence of dynamic agents ("
+                "vehicles, people) suggests this may be a rural or quiet road, requiring cautious forward "
+                "monitoring.\n\n"
+                "【Step 4】\n"
+                "Driving recommendation:\n"
+                "1. Maintain current lane position and drive centered within the detected road area.\n"
+                "2. Avoid drifting toward the right edge due to vegetation and fence boundary.\n"
+                "3. Proceed with moderate speed and visual caution, as undetected dynamic elements (e.g., vehicles, "
+                "humans) may appear beyond current perception range.\n"
+
+                "Question: \n"
+
             ),
-            "road_guidance": (
-                "请结合目标的位置、类别和分布情况，为当前场景提供合理的通行建议或避让策略。"
-                "指出可通行区域、建议避让的高密度或危险区域，并说明依据。"
+
+            "few_shot": (
+                "The following is an example of generating driving suggestions based on target recognition results. "
+                "Please refer to the example style and analyze based on the new table input:\n\n"
+                "Example 1: \n"
+                "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right |\n"
+                "|----|------|--------|----------------|----------------|\n"
+                "| 1 | car | 93% | (100, 200) | (400, 600) |\n"
+                "| 2 | traffic light | 90% | (300, 100) | (320, 150) |\n"
+                "Analysis: A vehicle ahead and a red light signal have been detected. It is recommended to "
+                "immediately slow down and stop, and wait for the signal to change.\n\n"
+                "Example 2: \n"
+                "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right |\n"
+                "|----|------|--------|----------------|----------------|\n"
+                "| 1 | person | 85% | (500, 300) | (550, 500) |\n"
+                "| 2 | bus | 92% | (150, 220) | (350, 500) |\n"
+                "Analysis: There are buses and pedestrians ahead. It is recommended to drive on the right and slow "
+                "down to avoid them to ensure safety.\n\n"
+                "Please complete according to the data in the detection form below:\n"
+                "1. Whether the current road is passable;\n"
+                "2. Existing risks and obstacles;\n"
+                "3. Specific driving suggestions. The language should be clear and professional, following the above "
+                "style. Do not fabricate content that does not appear in the table."
             )
-        }.get(task, "请分析以下检测结果，给出你的专业判断。")
+        }.get(task, "Please analyze the following results and provide your professional judgment.")
 
         final_prompt = (
-            "你是一位道路图像分析专家，擅长结合目标检测结果评估交通状况、安全风险以及通行建议。\n\n"
+            "As an expert in autonomous driving image analysis, please determine whether the current vehicle can pass "
+            "safely based on the structured detection form provided below and offer operational suggestions.\n\n"
             f"{prompt_task}\n\n"
-            f"以下是检测到的目标信息（结构化表示）：\n{prompt_context}"
+            f"The following is the detected object information (structured representation) :\n{prompt_context}"
         )
 
-
-        # 调用 LLM API（非流式）
+        start_time = time.time()
         completion = client.chat.completions.create(
-            model="Meta-Llama-3.1-405B-Instruct",
+            model=selected_model,
             messages=[
-                {"role": "system", "content": ("你是一位经验丰富的交通图像分析专家, 擅长根据车辆等目标的类别, 置信度和空间位置." 
-                                               "判断道路风险, 交通密度和合理通行路径. 请依据结构化输入信息, 给出逻辑严谨, 表达清晰, 结论明确的分析建议.")},
+                {"role": "system", "content": (
+                    "You are an experienced expert in autonomous driving image analysis, skilled at analyzing based "
+                    "on the category, confidence level and spatial position of targets such as vehicles,"
+                    "Judge road risks, traffic density and reasonable passage routes. Please provide suggestions that "
+                    "are logically rigorous, clearly expressed and have definite conclusions based on the structured "
+                    "input information."
+                    )},
                 {"role": "user", "content": final_prompt}
             ],
             stream=False
         )
 
         result_text = completion.choices[0].message.content
+
+        usage = getattr(completion, "usage", None)
+        total_tokens = usage.total_tokens if usage else None
+        inference_time = round(time.time() - start_time, 3)
+
+        result_text += f"\n\n⏱️ Reasoning time: {inference_time} seconds"
+        if total_tokens:
+            result_text += f"\n📊 Total tokens used: {total_tokens}"
+
         return JsonResponse({
             "success": True,
             "analysis": result_text

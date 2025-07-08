@@ -8,8 +8,8 @@ user_urlpatterns = [
     path('api/login/', user_views.login_view, name='longin'),
     path('api/register/', user_views.register_view, name='register'),
     path('api/update_user/', user_views.update_user_view, name='update_user'),
-    path('api/upload-avatar/', user_views.upload_avatar, name='upload_avatar'),
-    path('api/update_password/', user_views.change_password, name='change_password'),
+    path('api/upload-avatar/', user_views.upload_avatar_view, name='upload_avatar'),
+    path('api/update_password/', user_views.change_password_view, name='change_password'),
 ]
 
 # Static resource access (user avatar)
