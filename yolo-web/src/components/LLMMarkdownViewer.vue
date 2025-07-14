@@ -21,7 +21,7 @@ const props = defineProps<{
 
 const renderedContent = computed(() => marked.parse(props.content || ""));
 
-// 样式支持对象或字符串
+// Style support object or string
 const customStyle = computed(() =>
   typeof props.style === "string" ? props.style : {
     border: "1px solid #ccc",
