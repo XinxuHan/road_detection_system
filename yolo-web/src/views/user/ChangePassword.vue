@@ -1,49 +1,61 @@
 <template>
-
   <div>
     <el-card>
-      <el-descriptions class="margin-top" title="Reset Password" :column="2" border>
-
-      </el-descriptions>
-
+      <el-descriptions
+        class="margin-top"
+        title="Reset Password"
+        :column="2"
+        border
+      />
       <el-row class="password-change" justify="center">
-  <el-col :span="24">
-    <el-form
-      :model="pwdForm"
-      :rules="rules"
-      ref="formRef"
-      label-width="200px"
-      size="large"
-      label-position="left"
-    >
-      <el-form-item label="Current Password" prop="old_pwd">
-        <el-input v-model="pwdForm.old_pwd" type="password" style="width: 400px;" />
-      </el-form-item>
+        <el-col :span="24">
+          <el-form
+            ref="formRef"
+            :model="pwdForm"
+            :rules="rules"
+            label-width="200px"
+            label-position="left"
+            size="large"
+          >
+            <el-form-item label="Current Password" prop="old_pwd">
+              <el-input
+                type="password"
+                v-model="pwdForm.old_pwd"
+                :style="{ width: '400px' }"
+              />
+            </el-form-item>
 
-      <el-form-item label="New Password" prop="new_pwd">
-        <el-input v-model="pwdForm.new_pwd" type="password" style="width: 400px;" />
-      </el-form-item>
+            <el-form-item label="New Password" prop="new_pwd">
+              <el-input
+                type="password"
+                v-model="pwdForm.new_pwd"
+                :style="{ width: '400px' }"
+              />
+            </el-form-item>
 
-      <el-form-item label="Confirm New Password" prop="re_pwd">
-        <el-input v-model="pwdForm.re_pwd" type="password" style="width: 400px;" />
-      </el-form-item>
+            <el-form-item label="Confirm New Password" prop="re_pwd">
+              <el-input
+                type="password"
+                v-model="pwdForm.re_pwd"
+                :style="{ width: '400px' }"
+              />
+            </el-form-item>
 
-      <el-form-item>
-        <el-button @click="onSubmit" type="primary">Confirm the changes</el-button>
-        <el-button @click="onReset(formRef)">Clear</el-button>
-      </el-form-item>
-    </el-form>
-  </el-col>
-</el-row>
-
-
-
+            <el-form-item>
+              <el-button type="primary" @click="onSubmit">
+                Update Password
+              </el-button>
+              <el-button @click="() => onReset(formRef)">
+                Reset
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
     </el-card>
-
-
   </div>
-
 </template>
+
 
 
 <script setup lang="ts" >
@@ -61,50 +73,65 @@ const pwdForm = ref({
   re_pwd: ''
 })
 
-const checkOldSame = (rule:any, value:any, callback: any) => {
+const checkOldSame = (rule:any, value:any, callback: Function) => {
   if (value === pwdForm.value.old_pwd) {
-    callback(new Error('The original password and the new password cannot be the same!'))
+    callback(new Error('New password cannot be the same as the current password!'))
   } else {
     callback()
   }
 }
 
-const checkNewSame = (rule:any, value:any, callback: any) => {
+const checkNewSame = (rule:any, value:any, callback: Function) => {
   if (value !== pwdForm.value.new_pwd) {
-    callback(new Error('The new password and the new password you enter again to confirm are different!'))
+    callback(new Error('Confirmation password does not match the new password!'))
   } else {
     callback()
   }
 }
-const rules = {
-  // Original password
+const rules: FormRules = {
   old_pwd: [
-    { required: true, message: 'Please enter your password', trigger: 'blur' },
+    {
+      required: true,
+      message: 'Please input your current password',
+      trigger: 'blur'
+    },
     {
       pattern: /^\S{6,15}$/,
-      message: 'The password must be a non-empty string of 6-15 characters.',
+      message: 'Password must be 6–15 non-whitespace characters.',
       trigger: 'blur'
     }
   ],
-  // New Password
   new_pwd: [
-    { required: true, message: 'Please enter new password', trigger: 'blur' },
     {
-      pattern: /^\S{6,15}$/,
-      message: 'The password must be a non-empty string of 6-15 characters.',
+      required: true,
+      message: 'Please input your new password',
       trigger: 'blur'
     },
-    { validator: checkOldSame, trigger: 'blur' }
+    {
+      pattern: /^\S{6,15}$/,
+      message: 'Password must be 6–15 non-whitespace characters.',
+      trigger: 'blur'
+    },
+    {
+      validator: checkOldSame,
+      trigger: 'blur'
+    }
   ],
-  // Confirm New Password
   re_pwd: [
-    { required: true, message: 'Please confirm your new password again', trigger: 'blur' },
     {
-      pattern: /^\S{6,15}$/,
-      message: 'The password must be a non-empty string of 6-15 characters.',
+      required: true,
+      message: 'Please confirm your new password',
       trigger: 'blur'
     },
-    { validator: checkNewSame, trigger: 'blur' }
+    {
+      pattern: /^\S{6,15}$/,
+      message: 'Password must be 6–15 non-whitespace characters.',
+      trigger: 'blur'
+    },
+    {
+      validator: checkNewSame,
+      trigger: 'blur'
+    }
   ]
 }
 
@@ -112,8 +139,8 @@ const rules = {
 // Submit the form to change the password
 const onSubmit = async () => {
   // Validation form
-  const isValid = await formRef.value?.validate();
-  if (!isValid) return;
+  const valid = await formRef.value?.validate()
+  if (!valid) return
 
   const { old_pwd, new_pwd } = pwdForm.value;
 
@@ -124,20 +151,23 @@ const onSubmit = async () => {
       email: loginUserStore.loginUser.email
     });
 
-    if(response.data.code == 200){
+    const code = response.data.code
+    const error = response.data.error
+
+    if(code == 200){
       // After the password is successfully changed, clear the locally stored user information
       loginUserStore.clearLoginUser();
       // Jump to the login page
-      router.push({ name: 'login' });
+      router.push('/login');
       ElMessage({
         message: 'Password modification successful, please log in again!',
         type: 'success',
       })
     } else {
-      ElMessage.error(response.data.error)
+      ElMessage.error(error)
     }
-  } catch (error) {
-    console.error('Password change failed:', error);
+  } catch (err) {
+    console.error('Password change failed:', err);
   }
 };
 

@@ -1,206 +1,164 @@
 <template>
-  <el-dialog :model-value="dialogVisible" title="Modify personal information" width="50%" @close="handleClose">
-    <el-form  :model="form" label-width="150px">
-
-      <div class="updateinfo">
-
-        <div class="left">
-          <el-form-item label="avatar" prop="avatar">
+  <el-dialog
+    :model-value="visibleDialog"
+    title="Modify personal information"
+    width="50%"
+    @close="closeDialog"
+  >
+    <el-form :model="formData" label-width="150px">
+      <div class="info-wrapper">
+        <div class="form-left">
+          <el-form-item label="Avatar" prop="avatar">
             <el-upload
-                class="avatar-uploader"
-                name="avatar"
-                action="http://localhost:8000/api/upload-avatar/"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess">
+              class="avatar-uploader"
+              name="avatar"
+              :action="uploadEndpoint"
+              :show-file-list="false"
+              :on-success="onAvatarUpload"
+            >
               <img v-if="avatarUrl" :src="avatarUrl" class="avatar" />
-              <el-icon v-else class="avatar-uploader-icon"></el-icon>
+              <el-icon v-else class="avatar-uploader-icon" />
             </el-upload>
-            <!--            <img style="width:150px;height:110px" :src="userInfo.avatarUrl" />-->
           </el-form-item>
-          <el-form-item label="Nick name" prop="nick_name">
 
-            <el-input v-model="form.nick_name" />
+          <el-form-item label="Nick name" prop="nick_name">
+            <el-input v-model="formData.nick_name" />
           </el-form-item>
+
           <el-form-item label="Age" prop="age">
-            <el-input v-model="form.age" :min="0" :max="120"></el-input>
+            <el-input v-model="formData.age" :min="0" :max="120" />
           </el-form-item>
+
           <el-form-item label="Gender" prop="gender">
             <el-switch
-                v-model="form.gender"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-                active-text="Male"
-                inactive-text="Female"
-                :active-value= "'1'"
-                :inactive-value= "'0'"
-            >
-            </el-switch>
+              v-model="formData.gender"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="Male"
+              inactive-text="Female"
+              :active-value="'1'"
+              :inactive-value="'0'"
+            />
           </el-form-item>
-
-
         </div>
 
-        <div class="right">
+        <div class="form-right">
           <el-form-item label="Account" prop="account">
-            <el-input v-model="form.account" disabled></el-input>
+            <el-input v-model="formData.account" disabled />
           </el-form-item>
+
           <el-form-item label="Email" prop="email">
-            <el-input v-model="form.email"></el-input>
+            <el-input v-model="formData.email" />
           </el-form-item>
+
           <el-form-item label="Phone" prop="phone">
-            <el-input v-model="form.phone"></el-input>
+            <el-input v-model="formData.phone" />
           </el-form-item>
         </div>
-
-
-
       </div>
-
-
     </el-form>
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose">Cancel</el-button>
-        <el-button type="primary"  @click="handleSubmit">Submit</el-button>
+        <el-button @click="closeDialog">Cancel</el-button>
+        <el-button type="primary" @click="submitForm">Submit</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-import {computed, defineEmits, onMounted, reactive, ref, watch} from 'vue';
-import {useUserInfo} from "@/utils/userinfo";
-import {useLoginUserStore} from "@/store/useLoginUserStore";
-import {updateUser} from "@/api/login/user";
-import {ElMessage, ElNotification ,ElForm} from "element-plus";
-import type { UploadProps } from 'element-plus'
-import myApi from "@/utils/request";
-// Send dialogVisible changes via emits
-const emits = defineEmits(["update:modelValue"]);
-const dialogVisible = ref<boolean>(false);
+import { ref, reactive, onMounted, defineEmits, computed } from 'vue';
+import { useLoginUserStore } from '@/store/useLoginUserStore';
+import { updateUser } from '@/api/login/user';
+import { ElMessage, ElNotification } from 'element-plus';
+import myApi from '@/utils/request';
 
+const props = defineProps<{ modelValue: boolean }>();
+const emits = defineEmits(['update:modelValue']);
 
-// Form Data
-const form = reactive({
-  account:"",
-  avatar: "",
-  nick_name: "",
-  gender: "",
-  email: "",
-  age: 0 ,
-  phone:"",
+const visibleDialog = computed({
+  get: () => props.modelValue,
+  set: val => emits('update:modelValue', val)
 });
 
+const formData = reactive({
+  account: '',
+  avatar: '',
+  nick_name: '',
+  gender: '',
+  email: '',
+  age: 0,
+  phone: ''
+});
 
 const loginUserStore = useLoginUserStore();
+const currentUser = loginUserStore.loginUser;
+const avatarUrl = ref('');
+const uploadEndpoint = `${myApi.defaults.baseURL}/api/upload-avatar/`;
 
-const user = loginUserStore.loginUser;
-
-
-const avatarUrl =ref("")
-
-
-// Loading user information
 onMounted(() => {
-  if (user) {
-    form.nick_name = user.nick_name;
-    form.account = user.account;
-    form.email = user.email;
-    form.phone = user.phone;
-    form.age = user.age;
-    form.gender = user.gender;
-    form.avatar = user.avatar;
-    avatarUrl.value = `${myApi.defaults.baseURL}/user/media/avatar/${user.avatar}`;
-  }
-
-
+  if (!currentUser) return;
+  Object.assign(formData, currentUser);
+  avatarUrl.value = `${myApi.defaults.baseURL}/user/media/avatar/${currentUser.avatar}`;
 });
 
-
-// Upload avatar
-const handleAvatarSuccess = (res: any) => {
-  console.log(res);
+const onAvatarUpload = (res: any) => {
   avatarUrl.value = `${myApi.defaults.baseURL}/user/media/avatar/${res.avatarUrl}`;
-  form.avatar = res.avatarUrl;  // Save the file name to form.avatar and submit it together when submitting
-}
+  formData.avatar = res.avatarUrl;
+};
 
-
-
-// Synchronize UI after updating data
-const handleSubmit = async () => {
+const submitForm = async () => {
   try {
-    const formData = new FormData();
-    formData.append('nick_name', form.nick_name);
-    formData.append('email', form.email);
-    formData.append('phone', form.phone);
-    formData.append('age', String(form.age));
-    formData.append('gender', form.gender);
-    if (form.avatar) formData.append('avatar', form.avatar);  // If the user has uploaded an avatar, add it to FormData
-    await updateUser(formData);  // Call the backend API to update user information
-
-    // Update user data in Pinia store
-    loginUserStore.setLoginUser({
-      ...loginUserStore.loginUser,
-      ...form,
+    const payload = new FormData();
+    const keys = Object.keys(formData) as (keyof typeof formData)[];
+    keys.forEach((key) => {
+      const value = formData[key];
+      if (value !== undefined && value !== null) {
+        payload.append(key, String(value));
+      }
     });
 
-    emits('update:modelValue', false);  // Close dialog box
+    await updateUser(payload);
 
-    ElMessage({
-      message: 'User information updated successfully',
-      type: 'success',
-    })
+    loginUserStore.setLoginUser({
+      ...loginUserStore.loginUser,
+      ...formData
+    });
 
-  } catch (error) {
+    emits('update:modelValue', false);
+    ElMessage.success('User information updated successfully');
+  } catch (err) {
     ElNotification({
       title: 'Warning',
-      message: 'The server is busy, please try again later',
-      type: 'warning',
-    })
+      message: 'Failed to update user data. Please try again.',
+      type: 'warning'
+    });
   }
 };
 
-
-const handleClose = () => {
-  //Click Cancel to restore the form data to the latest user data
-  form.nick_name = loginUserStore.loginUser.nick_name;
-  form.account = loginUserStore.loginUser.account;
-  form.email = loginUserStore.loginUser.email;
-  form.phone = loginUserStore.loginUser.phone;
-  form.age = loginUserStore.loginUser.age;
-  form.gender = loginUserStore.loginUser.gender;
+const closeDialog = () => {
+  Object.assign(formData, loginUserStore.loginUser);
   avatarUrl.value = `${myApi.defaults.baseURL}/user/media/avatar/${loginUserStore.loginUser.avatar}`;
-
-  emits("update:modelValue", false);
+  emits('update:modelValue', false);
 };
-
-
-
-
 </script>
+
 <style scoped>
-.updateinfo {
+.info-wrapper {
   height: 350px;
-  overflow: auto;
+  display: flex;
+  gap: 20px;
 }
-.left {
+.form-left {
   width: 330px;
-  float: left;
-  padding: 0;
-
 }
-.right {
+.form-right {
   width: 400px;
-  overflow: hidden;
 }
-
-/* Use :deep() to cover the border of el-input */
 :deep(.el-input__wrapper) {
   padding: 0 !important;
 }
-
-
 .avatar-uploader .avatar {
   width: 120px;
   height: 120px;
@@ -214,11 +172,9 @@ const handleClose = () => {
   overflow: hidden;
   transition: var(--el-transition-duration-fast);
 }
-
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }
-
 .el-icon.avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -226,7 +182,4 @@ const handleClose = () => {
   height: 178px;
   text-align: center;
 }
-
-
-
 </style>

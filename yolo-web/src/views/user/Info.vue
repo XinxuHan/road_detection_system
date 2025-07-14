@@ -1,100 +1,106 @@
 <template>
   <div>
     <el-card v-if="user">
-      <el-descriptions class="margin-top" title="Introduction" :column="2" border>
-        &lt;!&ndash; avatar &ndash;&gt;
+      <el-descriptions
+        class="margin-top"
+        title="User Profile"
+        :column="2"
+        border
+      >
+        <!-- avatar -->
         <el-descriptions-item>
           <template #label>
-            <el-icon ><PictureFilled /></el-icon>
-            avatar
+            <el-icon><PictureFilled /></el-icon>
+            Avatar
           </template>
           <img
-              v-if="avatarUrl "
-              class="img"
-              :src="avatarUrl"
-              alt="User Avatar"
+            v-if="avatarUrl"
+            class="img"
+            :src="avatarUrl"
+            alt="User Avatar"
           />
         </el-descriptions-item>
 
+        <!-- account -->
         <el-descriptions-item>
           <template #label>
             <el-icon><User /></el-icon>
-            account
+            Account
           </template>
-          {{ user.account || 'Not set' }}
+          {{ user.account ?? 'Not set' }}
         </el-descriptions-item>
 
-        &lt;!&ndash; Nick name &ndash;&gt;
+        <!-- nickname -->
         <el-descriptions-item>
           <template #label>
             <el-icon><UserFilled /></el-icon>
-            Nick name
+            Nickname
           </template>
-          {{ user.nick_name || 'No nickname set' }}
+          {{ user.nick_name ?? 'No nickname' }}
         </el-descriptions-item>
 
-        &lt;!&ndash; age &ndash;&gt;
+        <!-- age -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Odometer /></el-icon>
-            age
+            Age
           </template>
-          {{ user.age || 'Not set' }}
+          {{ user.age || 'Unknown' }}
         </el-descriptions-item>
 
-        &lt;!&ndash; gender &ndash;&gt;
+        <!-- gender -->
         <el-descriptions-item>
           <template #label>
             <el-icon>
-              <Female v-if="user.gender === '0'" />
-              <Male v-else-if="user.gender === '1'" />
-              <User v-else />
+              <template v-if="user.gender === '0'"><Female /></template>
+              <template v-else-if="user.gender === '1'"><Male /></template>
+              <template v-else><User /></template>
             </el-icon>
-            gender
+            Gender
           </template>
           <el-tag
-              size="small"
-              :type="user.gender === '0' ? 'danger' : user.gender === '1' ? 'primary' : 'info'"
+            size="small"
+            :type="user.gender === '0' ? 'danger' : user.gender === '1' ? 'primary' : 'info'"
           >
-            {{ genderText  }}
+            {{ genderText }}
           </el-tag>
         </el-descriptions-item>
 
-        &lt;!&ndash; Email &ndash;&gt;
+        <!-- email -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Message /></el-icon>
             Email
           </template>
-          {{ user.email || 'Not set' }}
+          {{ user.email ?? 'Not provided' }}
         </el-descriptions-item>
 
-        &lt;!&ndash; phone number &ndash;&gt;
+        <!-- phone -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Phone /></el-icon>
-            phone number
+            Phone
           </template>
-          {{ user.phone || 'Not set' }}
+          {{ user.phone ?? 'Not provided' }}
         </el-descriptions-item>
 
-        &lt;!&ndash; Registration Date &ndash;&gt;
+        <!-- registration date -->
         <el-descriptions-item>
           <template #label>
             <el-icon><Calendar /></el-icon>
-            Registration Date
+            Registered
           </template>
-          {{ registerDate || 'unknown' }}
+          {{ formattedRegisterDate }}
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
 
-    <el-empty v-else description="User information not found" />
+    <el-empty v-else description="No user data found" />
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import { computed } from 'vue'
 import {
   PictureFilled,
   User,
@@ -105,12 +111,11 @@ import {
   Message,
   Phone,
   Calendar
-} from "@element-plus/icons-vue";
-import { useLoginUserStore } from "@/store/useLoginUserStore";
-import myApi from "@/utils/request";
+} from '@element-plus/icons-vue'
+import { useLoginUserStore } from '@/store/useLoginUserStore'
+import myApi from '@/utils/request'
 
-const userStore = useLoginUserStore();
-
+const store = useLoginUserStore()
 
 const user = computed(() => ({
   account: '',
@@ -121,39 +126,32 @@ const user = computed(() => ({
   gender: '',
   age: 0,
   addtime: '',
-  ...userStore.loginUser
-}));
+  ...store.loginUser
+}))
 
-
-
-const registerDate = computed(() => {
-  if (!user.value.addtime) return "Not provided";
-  const date = new Date(user.value.addtime);
-  return date.toISOString().split("T")[0];
-});
-
+const formattedRegisterDate = computed(() => {
+  const raw = user.value.addtime
+  if (!raw) return 'Not provided'
+  const date = new Date(raw)
+  return date.toLocaleDateString('en-CA') // format: YYYY-MM-DD
+})
 
 const avatarUrl = computed(() => {
-  if (!user.value.avatar) return null;
-  return `${myApi.defaults.baseURL}/user/media/avatar/${user.value.avatar}?${Date.now()}`;
-});
+  const avatar = user.value.avatar
+  return avatar ? `${myApi.defaults.baseURL}/user/media/avatar/${avatar}?t=${Date.now()}` : null
+})
 
 const genderText = computed(() => {
-  if (user.value.gender === '1') return "Male";
-  if (user.value.gender === '0') return "Female";
-  return "Not Set";
-});
-
-
-
+  const gender = user.value.gender
+  return gender === '1' ? 'Male' : gender === '0' ? 'Female' : 'Not set'
+})
 </script>
 
 <style scoped>
 .img {
   width: 80px;
   height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
 }
-
-
-
 </style>

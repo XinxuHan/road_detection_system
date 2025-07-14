@@ -17,16 +17,14 @@ def login_view(request):
 
     user_profile = UserProfile.objects.filter(account=account).first()
     if not user_profile or user_profile.password != password:
-        return JsonResponse({'error': '错误的账号或密码！'})
+        return JsonResponse({'error': 'Wrong account or password!'})
 
-    # 设置 session 信息
     request.session.update({
         'is_login': True,
         'user_id': user_profile.id,
         'account': user_profile.account,
     })
 
-    # 构造用户信息
     user_info = {
         'id': user_profile.id,
         'account': user_profile.account,
@@ -41,7 +39,7 @@ def login_view(request):
 
     return JsonResponse({
         'success': True,
-        'message': '登录成功',
+        'message': 'Login successfully',
         'user': user_info
     })
 
@@ -52,27 +50,25 @@ def register_view(request):
     form = RegisterForm(request.data)
 
     if not form.is_valid():
-        # 返回验证失败的第一个错误信息
         errors = {field: errors[0] for field, errors in form.errors.items()}
         return JsonResponse({
             'success': False,
             'errors': errors,
         })
 
-    # 提取表单数据
     cleaned = form.cleaned_data
     user = UserProfile.objects.create(
         account=cleaned['account'],
         email=cleaned['email'],
         password=cleaned['password'],
         phone=cleaned['phone'],
-        avatar='img.png',  # 默认头像
+        avatar='img.png', 
         nick_name=cleaned['account'],
     )
 
     return JsonResponse({
         'success': True,
-        'message': '注册成功',
+        'message': 'Signup successfully',
     }, status=201)
 
 
@@ -82,15 +78,15 @@ def update_user_view(request):
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
-        return JsonResponse({"error": "无效的 JSON 格式"}, status=400)
+        return JsonResponse({"error": "Invalid JSON format"}, status=400)
 
-    user_email = data.get('email')
-    if not user_email:
-        return JsonResponse({"error": "缺少 email 字段"}, status=400)
+    user_account = data.get('account')
+    if not user_account:
+        return JsonResponse({"error": "Account required"}, status=400)
 
-    user_profile = UserProfile.objects.filter(email=user_email).first()
+    user_profile = UserProfile.objects.filter(account=user_account).first()
     if not user_profile:
-        return JsonResponse({"error": "未找到该邮箱对应的用户"}, status=404)
+        return JsonResponse({"error": "User not found"}, status=404)
 
     def handle_null(value):
         return None if value == "null" else value
@@ -107,7 +103,6 @@ def update_user_view(request):
         avatar_url = data['avatar']
         update_fields['avatar'] = os.path.basename(avatar_url)
 
-    # 去除值为 None 的字段，避免不必要的更新
     update_fields = {k: v for k, v in update_fields.items() if v is not None}
 
     for field, value in update_fields.items():
@@ -115,7 +110,7 @@ def update_user_view(request):
 
     user_profile.save()
 
-    return JsonResponse({"message": "用户信息更新成功!"})
+    return JsonResponse({"message": "Information update successfully"})
 
 @csrf_exempt
 @api_view(['POST'])
@@ -123,9 +118,8 @@ def upload_avatar_view(request):
 
     avatar_file = request.FILES.get('avatar')
     if not avatar_file:
-        return JsonResponse({"error": "未上传头像"}, status=400)
+        return JsonResponse({"error": "No avatar uploaded"}, status=400)
 
-    # 构建文件名与保存路径
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     file_name = f"{timestamp}-{avatar_file.name}"
     save_path = os.path.join(settings.USER_AVATAR_ROOT, file_name)
@@ -138,13 +132,13 @@ def upload_avatar_view(request):
                 destination.write(chunk)
 
         return JsonResponse({
-            "message": "头像上传成功",
+            "message": "Avatar uploaded successfully",
             "avatarUrl": file_name
         })
 
     except Exception as e:
         return JsonResponse({
-            "error": f"上传失败: {str(e)}"
+            "error": f"Failed to upload: {str(e)}"
         }, status=500)
 
 
@@ -155,23 +149,22 @@ def change_password_view(request):
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
-        return JsonResponse({"error": "无效的 JSON 数据"}, status=400)
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
     old_password = data.get('old_password')
     new_password = data.get('new_password')
     email = data.get('email')
 
     if not all([old_password, new_password, email]):
-        return JsonResponse({"error": "缺少必要字段"}, status=400)
+        return JsonResponse({"error": "Required field is missing"}, status=400)
 
     user_profile = UserProfile.objects.filter(email=email).first()
     if not user_profile:
-        return JsonResponse({"error": "未找到该用户"}, status=404)
+        return JsonResponse({"error": "Can't find the user"}, status=404)
 
     if user_profile.password != old_password:
-        return JsonResponse({'code': '500', 'error': "原密码错误！"})
+        return JsonResponse({'code': '500', 'error': "Wrong original password！"})
 
-    # 更新密码
     user_profile.password = new_password
     user_profile.save()
 

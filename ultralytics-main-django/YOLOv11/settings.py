@@ -73,7 +73,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'yolo_django',
         'USER': 'root',
-        'PASSWORD': 'Yiyi20426@',  # Use your own password
+        'PASSWORD': '20011205',  # Use your own password
     }
 }
 

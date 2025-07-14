@@ -183,6 +183,7 @@ def set_model_view(request):
         except json.JSONDecodeError:
             return JsonResponse({"success": False, "error": "JSON 解析失败"}, status=400)
         except Exception as e:
+            print({"success": False, "error": f"{str(e)}"})
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     return JsonResponse({"success": False, "error": "无效请求方法"}, status=405)
@@ -304,14 +305,15 @@ def analyze_llm_view(request):
                 "etc.);\n"
                 "It is prohibited to fabricate categories or scenarios not listed in the table. The language should "
                 "be concise and professional.\n"
-                "You should give the Operational Suggestion directly."
+                "You should give the Operational Suggestion directly with.\n"
+                # "Please provide the response in plain text only and do not use Markdown formatting and any special characters or emojis"
             ),
 
             "cot": (
                 "Question: \n"
                 "As an expert in autonomous driving image analysis, please determine whether the current vehicle can "
                 "pass safely based on the structured detection form provided below and offer operational "
-                "suggestions.\n\n"
+                "suggestions. \n\n"
                 "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right "
                 "corner |\n"
                 "|----|------|--------|----------------|----------------|\n"
@@ -365,13 +367,13 @@ def analyze_llm_view(request):
                 "2. Avoid drifting toward the right edge due to vegetation and fence boundary.\n"
                 "3. Proceed with moderate speed and visual caution, as undetected dynamic elements (e.g., vehicles, "
                 "humans) may appear beyond current perception range.\n"
-
+                # "Please provide the response in plain text only and do not use Markdown formatting and any special characters or emojis\n"
                 "Question: \n"
 
             ),
 
             "few_shot": (
-                "The following is an example of generating driving suggestions based on target recognition results. "
+                "The following is an example of generating driving suggestions based on target recognition results.\n"
                 "Please refer to the example style and analyze based on the new table input:\n\n"
                 "Example 1: \n"
                 "| ID | Class | Confidence | Coordinate of the upper left corner | Coordinates at the lower right |\n"
@@ -392,6 +394,7 @@ def analyze_llm_view(request):
                 "2. Existing risks and obstacles;\n"
                 "3. Specific driving suggestions. The language should be clear and professional, following the above "
                 "style. Do not fabricate content that does not appear in the table."
+                # "Please provide the response in plain text only and do not use Markdown formatting and any special characters or emojis\n"
             )
         }.get(task, "Please analyze the following results and provide your professional judgment.")
 

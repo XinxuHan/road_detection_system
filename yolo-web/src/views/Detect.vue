@@ -73,14 +73,15 @@
 
 
         <div style="border: 1px solid #ccc; border-radius: 6px; padding: 8px;">
-          <el-input
+          <!-- <el-input
               type="textarea"
               v-model="llmResult"
               placeholder="The LLM analysis results will be displayed here"
               autosize
               readonly
               style="width: 100%; font-family: monospace;"
-          />
+          /> -->
+          <LLMMarkdownViewer :content="llmResult" />
         </div>
 
       </div>
@@ -94,6 +95,8 @@ import {ref, watch} from 'vue';
 import {ElMessage} from "element-plus";
 import axios from "axios";
 import {setModelParams, switchModel} from "@/api/yolo/model";
+import LLMMarkdownViewer from "@/components/LLMMarkdownViewer.vue";
+
 const resultImageUrl = ref<string | null>(null);
 const loading = ref(false);
 
