@@ -2,33 +2,31 @@ import axios from 'axios';
 import {ElMessage, ElNotification} from "element-plus";
 
 const myApi = axios.create({
-    baseURL: 'http://localhost:8000',  // 你的 Django 后端地址
-    timeout: 10000,  // 设置请求超时时间
-    headers: { 'Content-Type': 'application/json;charset=UTF-8' },  // 请求头
-    withCredentials: true  // 确保请求携带 Cookie（包括 sessionid）
+    baseURL: 'http://localhost:8000',  // Your Django backend address
+    timeout: 10000,  // Set request timeout
+    headers: { 'Content-Type': 'application/json;charset=UTF-8' },  // Request Header
+    withCredentials: true  // Make sure the request carries cookies (including sessionid)
 });
 
 
 
-// 添加请求拦截器
+// Add a request interceptor
 axios.interceptors.request.use(function (config) {
-    // 在发送请求之前做些什么
     return config;
 }, function (error) {
-    // 对请求错误做些什么
     return Promise.reject(error);
 });
 
 
-// 响应拦截器（处理响应状态码，错误处理）
+// Response interceptor (processing response status code, error handling)
 myApi.interceptors.response.use(
     (response) => {
-        console.log(response); // 打印响应值
+        console.log(response); // Print the response value
         const { data } = response;
         console.log(data);
         if (data.code === 401) {
             ElNotification({
-                title: "你还没有登录哟~",
+                title: "You haven't logged in yet",
                 message: response.data.msg,
                 type: "error",
                 }
@@ -37,7 +35,7 @@ myApi.interceptors.response.use(
         }
         if (data.code === 500) {
             ElNotification({
-                title: "服务器内部错误",
+                title: "Internal server error",
                 message: response.data.msg,
                 type: "error",
             });

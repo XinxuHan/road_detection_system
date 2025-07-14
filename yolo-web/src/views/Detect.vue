@@ -1,9 +1,9 @@
 <template>
   <div id="mr-mainbody" class="container mr-mainbody">
 
-    <!-- 按钮与参数调节区域 -->
+    <!-- Buttons and parameter adjustment area -->
     <div class="control-panel">
-      <!-- 第一行按钮 -->
+      <!-- row 1 -->
       <div class="control-row">
         <el-select v-model="value" placeholder="Default Model" style="width: 300px" size="large" @change="handleModelChange">
           <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
@@ -14,7 +14,7 @@
         <el-button type="primary" @click="showCameraDialog">Camera Detection</el-button>
       </div>
 
-      <!-- 第二行参数和控制按钮 -->
+      <!-- row 2  -->
       <div class="control-row">
         <span class="confidence-label">Confidence:</span>
         <el-slider style="width: 160px" v-model="conf_value" :format-tooltip="formatTooltip" @change="() => updateModelParams('confidence')" />
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <!-- 媒体预览区域 -->
+    <!-- Media preview area -->
     <div class="image-container">
       <div class="imagePreview">
         <video v-if="currentMediaType === 'video' && mediaUrl" :src="mediaUrl" controls class="preview-media" />
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- 检测结果表格 -->
+    <!-- Test result table -->
     <div class="content-table">
       <el-table :data="tableData" style="width: 100%" :row-class-name="tableRowClassName">
         <el-table-column prop="id" label="ID" width="180" />
@@ -55,7 +55,7 @@
         <el-table-column prop="bbox" label="BBox" />
       </el-table>
 
-      <!-- LLM 分析结果 -->
+      <!-- LLM analysis results -->
       <div class="llm-analysis-section" style="margin-top: 30px;">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
           <span style="font-weight: bold; font-size: 15px;">🔍 Select the prompt engineering method:</span>
@@ -178,7 +178,7 @@ const startCameraDetection = async (deviceIndex: number) => {
 };
 
 
-// LLM 分析相关
+// LLM analysis related
 const selectedLlmTask = ref("zero_shot");
 const llmResult = ref("");
 
@@ -188,10 +188,10 @@ const llmTaskOptions = [
   { value: "few_shot", label: "Few-Shot Prompting" },
 ];
 
-// 调用后端分析接口
+// Calling the backend analysis interface
 const analyzeWithLLM = async () => {
   if (tableData.value.length === 0) {
-    llmResult.value = "⚠️ 当前无检测目标，无法分析。";
+    llmResult.value = "⚠️ There is currently no detection target and cannot be analyzed.";
     return;
   }
 
@@ -215,11 +215,11 @@ const analyzeWithLLM = async () => {
     if (result.success) {
       llmResult.value = result.analysis;
     } else {
-      llmResult.value = "❌ 分析失败：" + result.error;
+      llmResult.value = "❌ Analysis failed:" + result.error;
     }
   } catch (e) {
-    llmResult.value = "❌ 分析请求失败：" + e;
-    console.error("LLM分析异常:", e);
+    llmResult.value = "❌ Analysis request failed:" + e;
+    console.error("LLM analysis exception:", e);
   }
 };
 
@@ -422,7 +422,7 @@ const uploadAndStyleTransfer = async () => {
           bbox: `(${item.bbox.x1}, ${item.bbox.y1}), (${item.bbox.x2}, ${item.bbox.y2})`,
         }));
 
-        // 自动调用 LLM 分析
+        // Automatically invoke LLM analysis
         await analyzeWithLLM();
 
       } else {
@@ -560,13 +560,13 @@ const stopDetection = async () => {
 
 const downloadImage = async () => {
   if (!resultImageUrl.value) {
-    return ElMessage.warning('还没有检测结果');
+    return ElMessage.warning('No test results yet');
   }
 
   try {
     // Pull image resources
     const res = await fetch(resultImageUrl.value);
-    if (!res.ok) throw new Error(`网络错误：${res.status}`);
+    if (!res.ok) throw new Error(`Network Error:${res.status}`);
     // Convert to binary Blob
     const blob = await res.blob();
     // Generating a temporary object URL
@@ -624,7 +624,7 @@ const downloadCSV = () => {
   a.remove();
   window.URL.revokeObjectURL(url);
 
-  ElMessage.success("CSV 已生成，下载中…");
+  ElMessage.success("CSV generated, downloading...");
 };
 
 

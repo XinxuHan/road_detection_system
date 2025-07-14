@@ -60,11 +60,11 @@ const accountRegExp = /^[a-zA-Z0-9_]+$/
 const handleSubmit = async () => {
   errors.value = {}
   if (!accountRegExp.test(form.value.account)) {
-    errors.value.account = '账号只能包含字母、数字和下划线'
+    errors.value.account = 'The account number can only contain letters, numbers and underscores'
     return
   }
   if (form.value.password !== form.value.checkPassword) {
-    errors.value.checkPassword = '密码和确认密码不一致'
+    errors.value.checkPassword = 'The password and confirm password do not match'
     return
   }
   loading.value = true
@@ -77,7 +77,7 @@ const handleSubmit = async () => {
       errors.value = response.data.errors || {}
     }
   } catch (e) {
-    errorMessage.value = '注册失败，请稍后再试'
+    errorMessage.value = 'Registration failed, please try again later'
   } finally {
     loading.value = false
   }
