@@ -71,9 +71,9 @@ WSGI_APPLICATION = 'YOLOv11.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'yolo_django',
+        'NAME': 'users_data',
         'USER': 'root',
-        'PASSWORD': '20011205',  # Use your own password
+        'PASSWORD': 'Yiyi20426@',  # Use your own password
     }
 }
 

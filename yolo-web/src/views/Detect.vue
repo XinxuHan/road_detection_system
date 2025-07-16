@@ -154,7 +154,7 @@ const startCameraDetection = async (deviceIndex: number) => {
   await stopDetection(); // Stop the last test first
   loading.value = true;
   try {
-    const response = await fetch("http://localhost:8000/api/start-camera", {
+    const response = await fetch("http://localhost:8000/api/start_camera", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -196,7 +196,7 @@ const analyzeWithLLM = async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:8000/api/analyze-llm/", {
+    const response = await fetch("http://localhost:8000/api/analyze_llm/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -241,28 +241,20 @@ const value = ref('')
 
 const options = [
   {
-    value: 'yolo8-best.pt',
-    label: 'yolo8-best.pt',
+    value: 'YOLOv8n-seg.pt',
+    label: 'YOLOv8n-seg.pt',
   },
   {
-    value: 'yolo11-best.pt',
-    label: 'yolo11-best.pt',
+    value: 'YOLOv8n-seg-improved.pt',
+    label: 'YOLOv8n-seg-improved.pt',
   },
   {
-    value: 'yolo11.pt',
-    label: 'yolo11.pt',
+    value: 'YOLOv11s-seg.pt',
+    label: 'YOLOv11s-seg.pt',
   },
   {
-    value: 'yolo11n-seg.pt',
-    label: 'yolo11n-seg.pt',
-  },
-  {
-    value: 'best.pt',
-    label: 'best.pt',
-  },
-  {
-    value: 'last.pt',
-    label: 'last.pt',
+    value: 'YOLOv11s-seg-improved.pt',
+    label: 'YOLOv11s-seg-improved.pt',
   },
 ]
 
@@ -444,7 +436,7 @@ const uploadAndStyleTransfer = async () => {
     formData.append("video", videoFile.value);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/upload-video/", {
+      const response = await fetch("http://127.0.0.1:8000/api/upload_video/", {
         method: "POST",
         body: formData,
       });
@@ -468,7 +460,7 @@ let lastFrameId = ref(0);
 const pollResults = async () => {
   pollingInterval = window.setInterval(async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/get-frame/")
+      const response = await fetch("http://127.0.0.1:8000/api/get_frame/")
       const data = await response.json()
 
       if (data.frame_id && data.frame_id !== lastFrameId.value) {
@@ -509,7 +501,7 @@ const pollResultsCamera = () => {
 
   pollingInterval = setInterval(async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/get-latest-frame");
+      const response = await fetch("http://localhost:8000/api/get_latest_frame");
       if (!response.ok) throw new Error("Request failed");
 
       const data = await response.json();

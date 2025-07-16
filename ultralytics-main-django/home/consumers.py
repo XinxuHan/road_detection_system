@@ -5,6 +5,7 @@ import threading
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.apps import apps
 
+
 class StreamHandler(AsyncWebsocketConsumer):
     async def connect(self):
         """The WebSocket connection is called when it is established"""

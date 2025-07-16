@@ -30,13 +30,13 @@
           {{ user.account ?? 'Not set' }}
         </el-descriptions-item>
 
-        <!-- nickname -->
+        <!-- name -->
         <el-descriptions-item>
           <template #label>
             <el-icon><UserFilled /></el-icon>
-            Nickname
+            Name
           </template>
-          {{ user.nick_name ?? 'No nickname' }}
+          {{ user.name ?? 'No name' }}
         </el-descriptions-item>
 
         <!-- age -->
@@ -119,18 +119,18 @@ const store = useLoginUserStore()
 
 const user = computed(() => ({
   account: '',
-  nick_name: '',
+  name: '',
   avatar: '',
   email: '',
   phone: '',
   gender: '',
   age: 0,
-  addtime: '',
+  add_time: '',
   ...store.loginUser
 }))
 
 const formattedRegisterDate = computed(() => {
-  const raw = user.value.addtime
+  const raw = user.value.add_time
   if (!raw) return 'Not provided'
   const date = new Date(raw)
   return date.toLocaleDateString('en-CA') // format: YYYY-MM-DD

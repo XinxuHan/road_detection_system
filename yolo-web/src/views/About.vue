@@ -2,37 +2,45 @@
   <div class="about-container">
     <div class="about-content">
       <h1 class="title">System Introduction</h1>
-      <p class="version">Version 1.0.0</p>
+      <p class="version">Final Version</p>
 
       <section class="section">
         <h2>System Introduction</h2>
         <p>
-          This system is a "unstructured road drivable area identification platform" developed based on the Django + Vue3 technology stack, which aims to achieve real-time segmentation and visual identification in complex road scenes through deep learning algorithms. The system backend integrates an improved version of the YOLOv11 semantic segmentation model, combined with the front-end interactive interface, which can efficiently identify drivable areas and obstacles in unstructured roads, and is widely used in scenarios such as autonomous driving, road inspections, and traffic safety.
-          The system adopts a front-end and back-end separation architecture. The front-end uses Vue3 + Element Plus to build a responsive interactive interface, and the back-end implements RESTful API and WebSocket communication based on Django to ensure the processing of real-time video streams and the return of segmentation results. The system supports image/video input, model parameter adjustment (such as confidence and IoU threshold), real-time detection result display, and fast switching of multiple models.
+          This project presents an <strong>Unstructured Road Drivable Area Identification Platform</strong>, developed using the <strong>Django + Vue3</strong> technology stack. It aims to provide <strong>real-time semantic segmentation and obstacle detection</strong> for complex road environments, particularly focusing on unstructured scenarios.
+          <br><br>
+          By integrating an enhanced version of the <strong>YOLOv11/v8 segmentation model</strong> in the backend and a responsive front-end user interface, the system can accurately identify <strong>drivable areas</strong> and <strong>non-drivable obstacles</strong>, supporting key applications in <em>autonomous driving</em>, <em>infrastructure inspection</em>, and <em>traffic safety monitoring</em>.
+          <br><br>
+          The system architecture follows a <strong>front-end and back-end decoupled design</strong>. The frontend is built with <strong>Vue3 + Element Plus</strong>, offering a highly interactive and user-friendly interface. The backend is developed with <strong>Django</strong>, providing robust <strong>RESTful APIs</strong> and optional <strong>WebSocket</strong> support to ensure real-time streaming, segmentation, and feedback of detection results.
+          <br><br>
+          The system supports <strong>multi-modal input</strong>, <strong>dynamic model configuration</strong>, and <strong>flexible model management</strong>, enabling rapid deployment and testing of diverse perception scenarios.
         </p>
       </section>
 
       <section class="section">
         <h2>Core Features</h2>
         <ul>
-          <li>✅ User Login and Registration</li>
-          <li>✅ Support fast replacement of YOLOv11 model</li>
-          <li>✅ Replace your own model</li>
-          <li>✅ Video stream processing (support MP4/AVI format, real-time frame processing and result display)</li>
-          <li>✅ Image detection (support JPG/PNG/BMP formats)</li>
-          <li>✅ Parameter adjustment (confidence adjustment, IoU parameter adjustment)</li>
-          <li>✅ Result display (intuitive display of test results in table form)</li>
+          <li>✅ User login and registration with secure backend validation</li>
+          <li>✅ Modular model switching for YOLOv11/v8 variants</li>
+          <li>✅ Custom model replacement support</li>
+          <li>✅ Video stream analysis (supports MP4/AVI format, real-time processing)</li>
+          <li>✅ Static image detection (supports JPG/PNG/BMP formats)</li>
+          <li>✅ Adjustable detection parameters (confidence, IoU threshold)</li>
+          <li>✅ Structured result visualization (real-time result display in table)</li>
+          <li>✅ Optional LLM analysis with Zero-shot, Few-shot, and CoT reasoning</li>
         </ul>
       </section>
 
       <section class="section">
-        <h2>technology</h2>
-        <p><strong>back-end:</strong>Django framework + YOLOv11 target detection algorithm</p>
-        <p><strong>front end:</strong>Vue3 + Element Plus + Pinia and other technologies</p>
-        <p><strong>Development Tools:</strong>PyCharm、WebStorm、Anaconda3、Node、MySQL and so on</p>
+        <h2>Technology Stack</h2>
+        <p><strong>Back-end:</strong> Django Framework, YOLOv11/v8 Segmentation Model</p>
+        <p><strong>Front-end:</strong> Vue3, Element Plus, Pinia</p>
+        <p><strong>Communication:</strong> RESTful API, WebSocket (optional)</p>
+        <p><strong>Development Tools:</strong> PyCharm, WebStorm, Anaconda3, Node.js, MySQL</p>
       </section>
     </div>
   </div>
+
 </template>
 
 <style scoped>

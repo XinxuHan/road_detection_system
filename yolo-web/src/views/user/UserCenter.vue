@@ -8,7 +8,7 @@
       <div class="PersonTop_text">
         <div class="user_text">
           <div class="user_name">
-            <span> {{ loginUserStore.loginUser?.nick_name }} </span>
+            <span> {{ loginUserStore.loginUser?.name }} </span>
           </div>
           <div class="user-v" >
 

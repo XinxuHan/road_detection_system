@@ -18,15 +18,13 @@ from home.frame_state import frame_storage
 from openai import OpenAI
 
 
-
-
 @csrf_exempt
 def recognition_view(request):
     if request.method == 'POST':
         input_image = request.FILES.get('content_image')
         if input_image:
             fs = FileSystemStorage()
-            # 保存上传文件
+            # Save the uploaded file that the user wants to recognize
             input_image_filename = fs.save(input_image.name, input_image)
             input_image_path = fs.path(input_image_filename)
             detection_result = detect(input_image_path)
@@ -36,16 +34,12 @@ def recognition_view(request):
                 'results': detection_result['results']
             }
 
-
             return JsonResponse(response_data)
 
         else:
             return JsonResponse({'error': 'Content image not provided.'}, status=400)
 
-    return JsonResponse({'error': '无效的请求方法'}, status=405)
-
-
-
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
 @csrf_exempt
@@ -60,12 +54,11 @@ def upload_video_view(request):
             for chunk in video_file.chunks():
                 f.write(chunk)
 
-        # 启动YOLO检测线程
+        # Start the thread for YOLO detection
         thread = threading.Thread(target=process_video, args=(video_path,))
         thread.start()
 
-        return JsonResponse({"message": "视频上传成功"})
-
+        return JsonResponse({"message": "The video has been uploaded successfully! "})
 
 
 @csrf_exempt
@@ -75,17 +68,17 @@ def start_camera_view(request):
             data = json.loads(request.body)
             camera_index = int(data.get("camera_index", 0))
 
-            # 停止正在进行的检测
+            # Stop the ongoing detection
             with frame_storage["lock"]:
                 if frame_storage["processing"]:
                     frame_storage["stop"] = True
 
-            # 启动摄像头检测线程
+            # Start the thread used for camera detection
             thread = threading.Thread(target=process_camera, args=(camera_index,))
-            thread .start()
+            thread.start()
 
             return JsonResponse({
-                "message": f"摄像头{camera_index}检测已启动",
+                "message": f"Camera {camera_index} . The detection has been initiated.",
                 "camera_index": camera_index
             })
 
@@ -93,11 +86,10 @@ def start_camera_view(request):
             return JsonResponse({"error": str(e)}, status=500)
 
 
-
-
-
-
 def get_frame_view(request):
+    # The interface view for obtaining the latest frame image and its detection results.
+    # Read the current frame, frame number, processing status and detection result from the shared state, and use locks to ensure thread safety.
+
     with frame_storage["lock"]:
         current_frame = frame_storage["latest_frame"]
         current_id = frame_storage["frame_id"]
@@ -124,8 +116,6 @@ def get_frame_view(request):
     })
 
 
-
-
 def get_latest_frame_view(request):
     with frame_storage["lock"]:
         if frame_storage["latest_frame"] is None:
@@ -136,12 +126,11 @@ def get_latest_frame_view(request):
         return JsonResponse({"frame": frame_base64, "detections": frame_storage["detections"]})
 
 
-
 @csrf_exempt
 def stop_recognition_view(request):
     if request.method == "POST":
         with frame_storage["lock"]:
-            frame_storage["stop"] = True  # 设置终止标志
+            frame_storage["stop"] = True  # Set the stop sign
 
             home_app_config = apps.get_app_config('home')
             yolo_predict = home_app_config.yolo_predict
@@ -150,47 +139,38 @@ def stop_recognition_view(request):
         return JsonResponse({"status": "detection stopped"})
 
 
-
-
-
-
 @csrf_exempt
 def set_model_view(request):
     if request.method == 'POST':
         try:
             if not request.body:
-                return JsonResponse({"success": False, "error": "请求体为空"}, status=400)
+                return JsonResponse({"success": False, "error": "The request body is empty!"}, status=400)
 
             data = json.loads(request.body)
             model_name = data.get('model_name', '').strip()
             print(model_name)
 
             if not model_name:
-                return JsonResponse({"success": False, "error": "未提供模型名称"}, status=400)
-
+                return JsonResponse({"success": False, "error": "The model name is not provided!"}, status=400)
 
             model_path = os.path.join(settings.SAVEMODEL_ROOT, model_name)
 
             if not os.path.exists(model_path):
-                return JsonResponse({"success": False, "error": f"模型文件 {model_name}.pt 不存在"}, status=400)
+                return JsonResponse({"success": False, "error": f"Model file {model_name}.pt .Do not exist!"}, status=400)
 
             home_app_config = apps.get_app_config('home')
             home_app_config.yolo_predict.new_model_name = model_path
             home_app_config.yolo_predict.load_yolo_model()
 
-            return JsonResponse({"success": True, "message": f"模型 {model_name}.pt 加载成功"})
+            return JsonResponse({"success": True, "message": f"Model {model_name}.pt .Loading successful!"})
 
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "JSON 解析失败"}, status=400)
+            return JsonResponse({"success": False, "error": "JSON parsing failed!"}, status=400)
         except Exception as e:
             print({"success": False, "error": f"{str(e)}"})
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-    return JsonResponse({"success": False, "error": "无效请求方法"}, status=405)
-
-
-
-
+    return JsonResponse({"success": False, "error": "Invalid request method!"}, status=405)
 
 
 @csrf_exempt
@@ -205,16 +185,14 @@ def set_confidence_view(request):
             home_app_config.yolo_predict.conf_thres = confidence
             home_app_config.yolo_predict.iou_thres = iou
 
-            return JsonResponse({"success": True, "message": f"置信度设置为 {confidence}"})
+            return JsonResponse({"success": True, "message": f"The confidence is set to: {confidence}"})
 
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "JSON 解析失败"}, status=400)
+            return JsonResponse({"success": False, "error": "JSON parsing failed!"}, status=400)
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-    return JsonResponse({"success": False, "error": "无效请求方法"}, status=405)
-
-
+    return JsonResponse({"success": False, "error": "Invalid request method! "}, status=405)
 
 
 client = OpenAI(base_url="https://api.sambanova.ai/v1", api_key="c7ebcdfd-d744-4069-b4f0-485e96c86a58")
@@ -237,7 +215,6 @@ def parse_bbox(bbox):
     except Exception as e:
         print("bbox Parsing failed: ", e)
     return {"x1": 0, "y1": 0, "x2": 0, "y2": 0}
-
 
 
 @csrf_exempt
@@ -415,7 +392,7 @@ def analyze_llm_view(request):
                     "Judge road risks, traffic density and reasonable passage routes. Please provide suggestions that "
                     "are logically rigorous, clearly expressed and have definite conclusions based on the structured "
                     "input information."
-                    )},
+                )},
                 {"role": "user", "content": final_prompt}
             ],
             stream=False

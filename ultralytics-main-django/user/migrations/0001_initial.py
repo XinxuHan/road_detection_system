@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="UserProfile",
+            name="UserData",
             fields=[
                 (
                     "id",
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ("password", models.CharField(max_length=256, verbose_name="password")),
                 ("email", models.EmailField(max_length=100, unique=True)),
                 ("phone", models.CharField(max_length=20, null=True, blank=True)),
-                ("nick_name", models.CharField(max_length=20, null=True, blank=True)),
+                ("name", models.CharField(max_length=20, null=True, blank=True)),
                 (
                     "gender",
                     models.CharField(
@@ -37,11 +37,11 @@ class Migration(migrations.Migration):
                 ),
                 ("age", models.IntegerField(null=True, blank=True, verbose_name="age")),
                 ("avatar", models.ImageField(upload_to="avatars/", null=True, blank=True)),
-                ("addtime", models.DateTimeField(auto_now_add=True)),
+                ("add_time", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                "db_table": "user_profile",
+                "db_table": "user_data",
             },
         ),
     ]

@@ -3,14 +3,14 @@ import {computed, ref} from "vue";
 
 // Define user information
 interface User {
-    nick_name: string;
+    name: string;
     account: string;
     avatar: string;
     email: string;
     phone: string;
     gender: string;
     age: number;
-    addtime: string;
+    add_time: string;
 
 }
 

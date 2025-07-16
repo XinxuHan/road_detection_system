@@ -21,8 +21,8 @@
             </el-upload>
           </el-form-item>
 
-          <el-form-item label="Nick name" prop="nick_name">
-            <el-input v-model="formData.nick_name" />
+          <el-form-item label="Name" prop="name">
+            <el-input v-model="formData.name" />
           </el-form-item>
 
           <el-form-item label="Age" prop="age">
@@ -85,7 +85,7 @@ const visibleDialog = computed({
 const formData = reactive({
   account: '',
   avatar: '',
-  nick_name: '',
+  name: '',
   gender: '',
   email: '',
   age: 0,
@@ -95,7 +95,7 @@ const formData = reactive({
 const loginUserStore = useLoginUserStore();
 const currentUser = loginUserStore.loginUser;
 const avatarUrl = ref('');
-const uploadEndpoint = `${myApi.defaults.baseURL}/api/upload-avatar/`;
+const uploadEndpoint = `${myApi.defaults.baseURL}/api/upload_avatar/`;
 
 onMounted(() => {
   if (!currentUser) return;

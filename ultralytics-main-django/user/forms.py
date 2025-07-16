@@ -1,7 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
-from .models import UserProfile
+from .models import UserData
+
 
 class RegisterForm(forms.Form):
     account = forms.CharField(
@@ -71,26 +72,27 @@ class RegisterForm(forms.Form):
     def clean_account(self):
         account = self.cleaned_data.get("account")
         if not re.match(r'^[a-zA-Z0-9_]+$', account):
-            raise ValidationError("The account can only contain letters, numbers and underscores, and cannot contain Chinese characters.")
-        if UserProfile.objects.filter(account=account).exists():
+            raise ValidationError(
+                "The account can only contain letters, numbers and underscores, and cannot contain Chinese characters.")
+        if UserData.objects.filter(account=account).exists():
             raise ValidationError("The account already exists!")
         return account
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if UserProfile.objects.filter(email=email).exists():
+        if UserData.objects.filter(email=email).exists():
             raise ValidationError("The email address already exists!")
         return email
 
     def clean_phone(self):
         phone = self.cleaned_data.get("phone")
-        if UserProfile.objects.filter(phone=phone).exists():
+        if UserData.objects.filter(phone=phone).exists():
             raise ValidationError("The mobile phone number already exists!")
         return phone
 
 
 class LoginForm(forms.Form):
-    nick_name = forms.CharField(
+    name = forms.CharField(
         label="User name",
         min_length=3,
         max_length=50,

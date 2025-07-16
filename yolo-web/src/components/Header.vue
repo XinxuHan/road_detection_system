@@ -22,7 +22,7 @@
         <el-avatar :src="avatarUrl" class="avatar" />
         <el-dropdown>
           <span class="el-dropdown-link">
-            {{ loginUserStore.loginUser.nick_name }}
+            {{ loginUserStore.loginUser.name }}
             <el-icon class="el-icon--right"><arrow-down /></el-icon>
           </span>
           <template #dropdown>

@@ -19,10 +19,10 @@ class YoloPredictor(BasePredictor):
         self.source = ''
 
         # Configuration item
-        self.iou_thres = 0.45
+        self.iou_thres = 0.70
 
         # Configuration item
-        self.conf_thres = 0.25
+        self.conf_thres = 0.45
 
         print("[Init] YoloPredictor initialized with default settings.")
         print(f"[Init] IOU threshold = {self.iou_thres}, Confidence threshold = {self.conf_thres}")
